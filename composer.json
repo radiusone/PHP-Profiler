@@ -1,5 +1,5 @@
 {
-    "name": "dubcanada/php-profiler",
+    "name": "radiusone/php-profiler",
     "autoload": {
         "files": [
             "profiler/Profiler.php",
@@ -26,6 +26,6 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=8.0"
     }
 }
