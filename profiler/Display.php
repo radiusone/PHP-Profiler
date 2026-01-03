@@ -77,6 +77,7 @@ class Profiler_Display {
 			HTML;
 			$class = '';
 			foreach ($output['logs']['console']['messages'] as $log) {
+				$log['type'] ??= '';
 				echo '<tr class="log-' . $log['type'] . '"><td class="type">' . $log['type'] . '</td><td class="' . $class . '">';
 
 				if ($log['type'] == 'log') {
@@ -282,7 +283,6 @@ class Profiler_Display {
 	}
 
 	public static function displayCssJavascript() {
-		echo '<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"><\/script>\')</script>';
 		echo '<style type="text/css">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
 		echo '<script type="text/javascript">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js') . '</script>';
 	}
