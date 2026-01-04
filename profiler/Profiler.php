@@ -6,23 +6,23 @@
 class Profiler_Profiler {
     /**
      * Holds log data collected by Profiler_Console
-     * @var array
+     * @var array{'logs'|'files'|'fileTotals'|'queries'|'queryTotals'|'memoryTotals'|'speedTotals': array<string,mixed>}
      */
-    public $output = [];
+    public array $output = [];
 
     /**
      * Holds config data passed inot the constructor
-     * @var array
+     * @var array{query_explain_callback: callable, query_profile_callback: callable}
      */
-    public $config = [];
+    public array $config = [];
 
     /**
      * The list of query types we care about for type specific stats
      *
-     * @var array
+     * @var string[]
      *
      */
-    protected $_queryTypes = ['select', 'update', 'delete', 'insert'];
+    protected array $_queryTypes = ['select', 'update', 'delete', 'insert'];
 
     /**
      * Sets the configuration options for this object and sets the start time.
@@ -33,9 +33,9 @@ class Profiler_Profiler {
      * </ul>
      *
      * @param array $config List of configuration options
-     * @param int $startTime Time to use as the start time of the profiler
+     * @param int|float|null $startTime Time to use as the start time of the profiler
      */
-    public function __construct(array $config = [], $startTime = null) {
+    public function __construct(array $config = [], int|float $startTime = null) {
         if (is_null($startTime)) {
             $startTime = microtime(true);
         }
@@ -47,9 +47,9 @@ class Profiler_Profiler {
     /**
      * Shortcut for setting the callback used to explain queries.
      *
-     * @param string|array $callback
+     * @param callable $callback
      */
-    public function setQueryExplainCallback($callback) {
+    public function setQueryExplainCallback(callable $callback): void {
         $this->config['query_explain_callback'] = $callback;
     }
 
@@ -57,16 +57,16 @@ class Profiler_Profiler {
      * Shortcut for setting the callback used to interact with the MySQL
      * query profiler.
      *
-     * @param string|array $callback
+     * @param callable $callback
      */
-    public function setQueryProfilerCallback($callback) {
+    public function setQueryProfilerCallback(callable $callback): void {
         $this->config['query_profiler_callback'] = $callback;
     }
 
     /**
      * Collects and aggregates data recorded by Profiler_Console.
      */
-    public function gatherConsoleData() {
+    public function gatherConsoleData(): void {
         $logs = Profiler_Console::getLogs();
 
 
@@ -115,7 +115,7 @@ class Profiler_Profiler {
     /**
      * Gathers and aggregates data on included files such as size
      */
-    public function gatherFileData() {
+    public function gatherFileData(): void {
         $files = get_included_files();
         $fileList = [];
         $fileTotals = ['count' => count($files), 'size' => 0, 'largest' => 0];
@@ -140,7 +140,7 @@ class Profiler_Profiler {
     /**
      * Gets the peak memory usage the configured memory limit
      */
-    public function gatherMemoryData() {
+    public function gatherMemoryData(): void {
         $memoryTotals = [];
         $memoryTotals['used'] = $this->getReadableFileSize(memory_get_peak_usage());
         $memoryTotals['total'] = ini_get('memory_limit');
@@ -151,7 +151,7 @@ class Profiler_Profiler {
     /**
      * Gathers and aggregates data regarding executed queries
      */
-    public function gatherQueryData() {
+    public function gatherQueryData(): void {
         $queries = [];
         $type_default = ['total' => 0, 'time' => 0, 'percentage' => 0, 'time_percentage' => 0];
         $types = ['select' => $type_default, 'update' => $type_default, 'insert' => $type_default, 'delete' => $type_default];
@@ -220,7 +220,7 @@ class Profiler_Profiler {
      * Calculates the execution time from the start of profiling to *now* and
      * collects the congirued maximum execution time.
      */
-    public function gatherSpeedData() {
+    public function gatherSpeedData(): void {
         $speedTotals = [];
         $speedTotals['total'] = $this->getReadableTime((microtime(true) - $this->startTime)*1000);
         $speedTotals['allowed'] = ini_get('max_execution_time');
@@ -230,10 +230,10 @@ class Profiler_Profiler {
     /**
      * Converts a number of bytes to a more readable format
      * @param int $size The number of bytes
-     * @param string $retstring The format of the return string
+     * @param string|null $retString The format of the return string
      * @return string
      */
-    public function getReadableFileSize($size, $retString = null) {
+    public function getReadableFileSize(int $size, string|null $retString = null): string {
         $sizes = ['bytes', 'kB', 'MB', 'GB', 'TB'];
 
         if ($retString === null) {
@@ -261,10 +261,10 @@ class Profiler_Profiler {
 
     /**
      * Converts a small time format (fractions of a millisecond) to a more readable format
-     * @param float $time
-     * @return int
+     * @param int|float $time
+     * @return string
      */
-    public function getReadableTime($time) {
+    public function getReadableTime(int|float $time): string {
         $ret = $time;
         $formatter = 0;
         $formats = ['ms', 's', 'm'];
@@ -287,7 +287,7 @@ class Profiler_Profiler {
      * Collects data from the console and performs various calculations on it before
      * displaying the console on screen.
      */
-    public function display() {
+    public function display(): void {
         $this->gatherConsoleData();
         $this->gatherFileData();
         $this->gatherMemoryData();
@@ -303,10 +303,10 @@ class Profiler_Profiler {
      * @param string $sql The query that is being explained
      * @return array
      */
-    protected function _attemptToExplainQuery($sql) {
+    protected function _attemptToExplainQuery(string $sql): array {
         try {
             $sql = 'EXPLAIN ' . $sql;
-            return call_user_func_array($this->config['query_explain_callback'], $sql);
+            return call_user_func($this->config['query_explain_callback'], $sql);
         } catch (Exception $e) {
             return [];
         }
@@ -318,9 +318,9 @@ class Profiler_Profiler {
      * @param string $sql The query being profiled
      * @return array
      */
-    protected function _attemptToProfileQuery($sql) {
+    protected function _attemptToProfileQuery(string $sql): array {
         try {
-            return call_user_func_array($this->config['query_profiler_callback'], $sql);
+            return call_user_func($this->config['query_profiler_callback'], $sql);
         } catch (Exception $e) {
             return [];
         }

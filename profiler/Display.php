@@ -6,9 +6,10 @@
 class Profiler_Display {
     /**
      * Outputs the HTML, CSS and JavaScript that builds the console display
-     * @param array $config A list of configuration options
+     *
+     * @param array{'logs'|'files'|'fileTotals'|'queries'|'queryTotals'|'memoryTotals'|'speedTotals': array<string,mixed>} $output
      */
-    public static function display($output) {
+    public static function display(array $output): void {
         self::displayCssJavascript();
 
         $overlay_image = base64_encode(file_get_contents(dirname(__FILE__) . '/resources/images/overlay.gif'));
@@ -282,7 +283,7 @@ class Profiler_Display {
         HTML;
     }
 
-    public static function displayCssJavascript() {
+    public static function displayCssJavascript(): void {
         echo '<style type="text/css">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
         echo '<script type="text/javascript">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js') . '</script>';
     }

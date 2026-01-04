@@ -6,9 +6,9 @@
 class Profiler_Console {
     /**
      * Holds the logs used when the console is displayed.
-     * @var array
+     * @var array<string,array<string,mixed>>
      */
-    private static $_logs = [
+    private static array $_logs = [
         'console' => ['messages' => [], 'count' => 0],
         'memory' => ['messages' => [], 'count' => 0],
         'errors' => ['messages' => [], 'count' => 0],
@@ -22,18 +22,18 @@ class Profiler_Console {
      * @param mixed $data The data to log to the console
      * @return void
      */
-    public static function log($data) {
+    public static function log(mixed $data): void {
         self::$_logs['console']['messages'][] = ['data' => $data];
         self::$_logs['console']['count'] += 1;
     }
 
     /**
      * Logs the memory usage of the provided variable, or entire script
-     * @param object $object Optional variable to log the memory usage of
+     * @param object|null $object Optional variable to log the memory usage of
      * @param string $name Optional name used to group variables and scripts together
      * @return void
      */
-    public static function logMemory($object = false, $name = 'PHP') {
+    public static function logMemory(?object $object = null, string $name = 'PHP'): void {
         $memory = $object ? strlen(serialize($object)) : memory_get_usage();
 
         $log_item = [
@@ -48,11 +48,12 @@ class Profiler_Console {
 
     /**
      * Logs an exception or error
+     *
      * @param Exception $exception
      * @param string $message
      * @return void
      */
-    public static function logError($exception, $message) {
+    public static function logError(Exception $exception, string $message): void {
         $log_item = [
             'data' => $message,
             'type' => 'error',
@@ -67,10 +68,11 @@ class Profiler_Console {
     /**
      * Starts a timer, a second call to this method will end the timer and cause the
      * time to be recorded and displayed in the console.
+     *
      * @param string $name
      * @return void
      */
-    public static function logSpeed($name = 'Point in Time') {
+    public static function logSpeed(string $name = 'Point in Time'): void {
         $log_item = ['data' => microtime(true), 'name' => $name];
 
         self::$_logs['speed']['messages'][] = $log_item;
@@ -80,9 +82,11 @@ class Profiler_Console {
     /**
      * Records how long a query took to run when the same query is passed in twice.
      * @param string $sql
+     * @param array{'possible_keys'|'key'|'type'|'rows': string}|null $explain
      * @return void
      */
-    public static function logQuery($sql, $explain = null) {
+    public static function logQuery(string $sql, array $explain = null): void
+    {
         // We use a hash of the query for two reasons. One is because for large queries the
         // hash will be considerably smaller in memory. The second is to make a dump of the
         // logs more easily readable.
@@ -118,11 +122,17 @@ class Profiler_Console {
     /**
      * Records how long a query took to run when you already know the details.
      * @param string $sql
-     * @param string $start - should be 0
-     * @param string $end - microtime of duration query took
+     * @param array{'possible_keys'|'key'|'type'|'rows': string}|null $explain
+     * @param int|float|string $start - should be 0
+     * @param int|float|string $end - microtime of duration query took
      * @return void
      */
-    public static function logQueryManually($sql, $explain = null, $start, $end) {
+    public static function logQueryManually(
+        string $sql,
+        array|null $explain = null,
+        int|float|string $start = 0,
+        int|float|string $end = 0
+    ): void {
         // We use a hash of the query for two reasons. One is because for large queries the
         // hash will be considerably smaller in memory. The second is to make a dump of the
         // logs more easily readable.
@@ -145,7 +155,7 @@ class Profiler_Console {
      * @return void
      *
      */
-    public static function logBenchmark($name) {
+    public static function logBenchmark(string $name): void {
         $key = 'benchmark_ ' . $name;
 
         if (isset(self::$_logs['benchmarks']['messages'][$key])) {
@@ -170,9 +180,9 @@ class Profiler_Console {
 
     /**
      * Returns all log data
-     * @return array
+     * @return array<string,array<string,mixed>>
      */
-    public static function getLogs() {
+    public static function getLogs(): array {
         return self::$_logs;
     }
 }
