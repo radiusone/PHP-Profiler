@@ -9,7 +9,8 @@ class Profiler_Display {
      *
      * @param array{'logs'|'files'|'fileTotals'|'queries'|'queryTotals'|'memoryTotals'|'speedTotals': array<string,mixed>} $output
      */
-    public static function display(array $output): void {
+    public static function display(array $output): void
+    {
         self::displayCssJavascript();
 
         $overlay_image = base64_encode(file_get_contents(dirname(__FILE__) . '/resources/images/overlay.gif'));
@@ -83,18 +84,18 @@ class Profiler_Display {
 
                 if ($log['type'] == 'log') {
                     echo '<div><pre>' . $log['data'] . '</pre></div>';
-                } else if ($log['type'] == 'memory') {
+                } elseif ($log['type'] == 'memory') {
                     echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['dataType'].'</em>: ' . $log['name'] . ' </div>';
-                } else if ($log['type'] == 'speed') {
+                } elseif ($log['type'] == 'speed') {
                     echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
-                } else if ($log['type'] == 'error') {
+                } elseif ($log['type'] == 'error') {
                     echo '<div><em>Line ' . $log['line'].'</em> : ' . $log['data'] . ' <pre>' . $log['file'] . '</pre></div>';
-                } else if ($log['type'] == 'benchmark') {
+                } elseif ($log['type'] == 'benchmark') {
                     echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
                 }
 
                 echo '</td></tr>';
-                $class = ($class == '') ? 'alt' : '';
+                $class = ($class === '') ? 'alt' : '';
             }
 
             echo '</table>';
@@ -118,7 +119,7 @@ class Profiler_Display {
                     echo '<tr class="log-speed"><td class="' . $class . '">';
                     echo '<div><pre>' . $log['data'] . '</pre> <em>' . $log['name'] . '</em></div>';
                     echo '</td></tr>';
-                    $class = ($class == '') ? 'alt' : '';
+                    $class = ($class === '') ? 'alt' : '';
                 }
             }
 
@@ -189,7 +190,7 @@ class Profiler_Display {
 
                     echo 'Speed: <b>' . $query['time'] . '</b>';
                     echo '</em>';
-                } else if (isset($query['time'])) {
+                } elseif (isset($query['time'])) {
                     echo '<em>Speed: <b>' . $query['time'] . '</b></em>';
                 }
 
@@ -206,7 +207,7 @@ class Profiler_Display {
                 }
 
                 echo '</td></tr>';
-                $class = ($class == '') ? 'alt' : '';
+                $class = ($class === '') ? 'alt' : '';
             }
 
             echo '</table>';
@@ -283,8 +284,9 @@ class Profiler_Display {
         HTML;
     }
 
-    public static function displayCssJavascript(): void {
-        echo '<style type="text/css">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
-        echo '<script type="text/javascript">' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js') . '</script>';
+    public static function displayCssJavascript(): void
+    {
+        echo '<style>' . file_get_contents(dirname(__FILE__) . '/resources/profiler.css') . '</style>';
+        echo '<script>' . file_get_contents(dirname(__FILE__) . '/resources/profiler.js') . '</script>';
     }
 }
