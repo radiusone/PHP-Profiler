@@ -8,14 +8,14 @@ class Profiler_Console {
      * Holds the logs used when the console is displayed.
      * @var array
      */
-    private static $_logs = array(
-        'console' => array('messages' => array(), 'count' => 0),
-        'memory' => array('messages' => array(), 'count' => 0),
-        'errors' => array('messages' => array(), 'count' => 0),
-        'speed' => array('messages' => array(), 'count' => 0),
-        'benchmarks' => array('messages' => array(), 'count' => 0),
-        'queries' => array('messages' => array(), 'count' => 0),
-        );
+    private static $_logs = [
+        'console' => ['messages' => [], 'count' => 0],
+        'memory' => ['messages' => [], 'count' => 0],
+        'errors' => ['messages' => [], 'count' => 0],
+        'speed' => ['messages' => [], 'count' => 0],
+        'benchmarks' => ['messages' => [], 'count' => 0],
+        'queries' => ['messages' => [], 'count' => 0],
+    ];
 
     /**
      * Logs a variable to the console
@@ -23,7 +23,7 @@ class Profiler_Console {
      * @return void
      */
     public static function log($data) {
-        self::$_logs['console']['messages'][] = array('data' => $data);
+        self::$_logs['console']['messages'][] = ['data' => $data];
         self::$_logs['console']['count'] += 1;
     }
 
@@ -36,9 +36,11 @@ class Profiler_Console {
     public static function logMemory($object = false, $name = 'PHP') {
         $memory = $object ? strlen(serialize($object)) : memory_get_usage();
 
-        $log_item = array('data' => $memory,
+        $log_item = [
+            'data' => $memory,
             'name' => $name,
-            'dataType' => gettype($object));
+            'dataType' => gettype($object),
+        ];
 
         self::$_logs['memory']['messages'][] = $log_item;
         self::$_logs['memory']['count'] += 1;
@@ -51,10 +53,12 @@ class Profiler_Console {
      * @return void
      */
     public static function logError($exception, $message) {
-        $log_item = array('data' => $message,
+        $log_item = [
+            'data' => $message,
             'type' => 'error',
             'file' => $exception->getFile(),
-            'line' => $exception->getLine());
+            'line' => $exception->getLine(),
+        ];
 
         self::$debugger_logs['console'][] = $log_item;
         self::$debugger_logs['errorCount'] += 1;
@@ -67,7 +71,7 @@ class Profiler_Console {
      * @return void
      */
     public static function logSpeed($name = 'Point in Time') {
-        $log_item = array('data' => microtime(true), 'name' => $name);
+        $log_item = ['data' => microtime(true), 'name' => $name];
 
         self::$_logs['speed']['messages'][] = $log_item;
         self::$_logs['speed']['count'] += 1;
@@ -101,10 +105,12 @@ class Profiler_Console {
             return;
         }
 
-        $log_item = array('start_time' => microtime(true),
+        $log_item = [
+            'start_time' => microtime(true),
             'end_time' => false,
             'explain' => false,
-            'sql' => $sql);
+            'sql' => $sql,
+        ];
 
         self::$_logs['queries']['messages'][$hash][] = $log_item;
     }
@@ -122,10 +128,12 @@ class Profiler_Console {
         // logs more easily readable.
         $hash = md5($sql);
 
-        $log_item = array('start_time' => $start,
+        $log_item = [
+            'start_time' => $start,
             'end_time' => $end,
             'explain' => false,
-            'sql' => $sql);
+            'sql' => $sql,
+        ];
 
         self::$_logs['queries']['messages'][$hash][] = $log_item;
     }
@@ -151,9 +159,11 @@ class Profiler_Console {
             return;
         }
 
-        $log_item = array('start_time' => microtime(true),
+        $log_item = [
+            'start_time' => microtime(true),
             'end_time' => false,
-            'name' => $name);
+            'name' => $name,
+        ];
 
         self::$_logs['benchmarks']['messages'][$key] = $log_item;
     }
