@@ -4,7 +4,8 @@
         "files": [
             "profiler/Profiler.php",
             "profiler/Console.php",
-            "profiler/Display.php"
+            "profiler/Display.php",
+            "profiler/helpers.php"
         ]
     },
     "description": "PHP Quick Profiler Fork",
