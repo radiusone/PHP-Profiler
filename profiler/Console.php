@@ -9,12 +9,12 @@ class Profiler_Console {
      * @var array<string,array<string,mixed>>
      */
     private static array $logs = [
-        'console' => ['messages' => [], 'count' => 0],
-        'memory' => ['messages' => [], 'count' => 0],
-        'errors' => ['messages' => [], 'count' => 0],
-        'speed' => ['messages' => [], 'count' => 0],
-        'benchmarks' => ['messages' => [], 'count' => 0],
-        'queries' => ['messages' => [], 'count' => 0],
+        'console' => ['messages' => []],
+        'memory' => ['messages' => []],
+        'errors' => ['messages' => []],
+        'speed' => ['messages' => []],
+        'benchmarks' => ['messages' => []],
+        'queries' => ['messages' => []],
     ];
 
     /**
@@ -24,7 +24,6 @@ class Profiler_Console {
      */
     public static function log(mixed $data): void {
         self::$logs['console']['messages'][] = ['data' => $data];
-        self::$logs['console']['count'] += 1;
     }
 
     /**
@@ -44,7 +43,6 @@ class Profiler_Console {
         ];
 
         self::$logs['memory']['messages'][] = $log_item;
-        self::$logs['memory']['count'] += 1;
     }
 
     /**
@@ -64,7 +62,6 @@ class Profiler_Console {
         ];
 
         self::$logs['console'][] = $log_item;
-        self::$logs['errorCount'] += 1;
     }
 
     /**
@@ -79,7 +76,6 @@ class Profiler_Console {
         $log_item = ['data' => microtime(true), 'name' => $name];
 
         self::$logs['speed']['messages'][] = $log_item;
-        self::$logs['speed']['count'] += 1;
     }
 
     /**
@@ -106,7 +102,6 @@ class Profiler_Console {
             }
             self::$logs['queries']['messages'][$hash][] = $query;
 
-            self::$logs['queries']['count'] += 1;
             return;
         }
 
@@ -158,7 +153,6 @@ class Profiler_Console {
 
             self::$logs['benchmarks']['messages'][$benchKey] = self::$logs['benchmarks']['messages'][$key];
             self::$logs['benchmarks']['messages'][$benchKey]['end_time'] = microtime(true);
-            self::$logs['benchmarks']['count'] += 1;
 
             unset(self::$logs['benchmarks']['messages'][$key]);
             return;

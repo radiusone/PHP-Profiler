@@ -283,7 +283,7 @@
     <div id="profiler">
         <div id="profiler-metrics">
             <div id="console" class="tab active">
-                <var><?= htmlspecialchars($logCount) ?></var>
+                <var><?= count($output['logs']['console']['messages']) ?></var>
                 <h4><?= __('Console') ?></h4>
             </div>
             <div id="speed" class="tab">
@@ -299,35 +299,35 @@
                 <h4><?= __('Memory Used') ?></h4>
             </div>
             <div id="files" class="tab">
-                <var><?= htmlspecialchars(sprintf(_('%d Files'), $fileCount)) ?></var>
+                <var><?= htmlspecialchars(sprintf(_('%d Files'), count($output['files']))) ?></var>
                 <h4><?= __('Included') ?></h4>
             </div>
         </div>
 
         <div id="profiler-boxes">
             <div id="profiler-console" class="profiler-box active">
-                <?php if ($logCount === 0): ?>
+                <?php if (count($output['logs']['console']['messages']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
                         <div data-toggle="log">
-                            <var><?= htmlspecialchars($output['logs']['console']['count']) ?></var>
+                            <var><?= count($output['logs']['console']['messages']) ?></var>
                             <h4><?= __('Logs') ?></h4>
                         </div>
                         <div data-toggle="errors">
-                            <var><?= htmlspecialchars($output['logs']['errors']['count']) ?></var>
+                            <var><?= count($output['logs']['errors']['messages']) ?></var>
                             <h4><?= __('Errors') ?></h4>
                         </div>
                         <div data-toggle="memory">
-                            <var><?= htmlspecialchars($output['logs']['memory']['count']) ?></var>
+                            <var><?= count($output['logs']['memory']['messages']) ?></var>
                             <h4><?= __('Memory') ?></h4>
                         </div>
                         <div data-toggle="speed">
-                            <var><?= htmlspecialchars($output['logs']['speed']['count']) ?></var>
+                            <var><?= count($output['logs']['speed']['messages']) ?></var>
                             <h4><?= __('Speed') ?></h4>
                         </div>
                         <div data-toggle="benchmarks">
-                            <var><?= htmlspecialchars($output['logs']['benchmarks']['count']) ?></var>
+                            <var><?= count($output['logs']['benchmarks']['messages']) ?></var>
                             <h4><?= __('Benchmarks') ?></h4>
                         </div>
                     </div>
@@ -355,7 +355,7 @@
                                 </td>
                                 <?php break ?>
                                 <?php case 'speed': ?>
-                                <?php case 'benchmark': ?>
+                                <?php case 'benchmarks': ?>
                                 <td>
                                     <?= htmlspecialchars($log['name']) ?>
                                 </td>
@@ -384,7 +384,7 @@
                 <?php endif ?>
             </div>
             <div id="profiler-speed" class="profiler-box">
-                <?php if ($output['logs']['speed']['count'] === 0): ?>
+                <?php if (count($output['logs']['speed']['messages']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
@@ -421,12 +421,12 @@
                 <?php endif ?>
             </div>
             <div id="profiler-queries" class="profiler-box">
-                <?php if ($output['queryTotals']['count'] === 0): ?>
+                <?php if (count($output['queries']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
                         <div>
-                            <var><?= htmlspecialchars($output['queryTotals']['count']) ?></var>
+                            <var><?= count($output['queries']) ?></var>
                             <h4><?= __('Total Queries') ?></h4>
                         </div>
                         <div>
@@ -517,7 +517,7 @@
                 <?php endif ?>
             </div>
             <div id="profiler-memory" class="profiler-box">
-                <?php if ($output['logs']['memory']['count'] === 0): ?>
+                <?php if (count($output['logs']['memory']['messages']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
@@ -558,12 +558,12 @@
                 <?php endif ?>
             </div>
             <div id="profiler-files" class="profiler-box">
-                <?php if ($output['fileTotals']['count'] === 0): ?>
+                <?php if (count($output['files']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
                         <div>
-                            <var><?= htmlspecialchars($output['fileTotals']['count']) ?></var>
+                            <var><?= count($output['files']) ?></var>
                             <h4><?= __('Total Files') ?></h4>
                         </div>
                         <div>

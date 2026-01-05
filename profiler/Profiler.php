@@ -145,7 +145,6 @@ class Profiler_Profiler {
                 $queryTotals['duplicates'] += 1;
             }
 
-            $queryTotals['count'] += 1;
             foreach ($entries as $i => $log) {
                 if (isset($log['end_time'])) {
                     $query = [
