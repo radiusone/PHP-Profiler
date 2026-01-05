@@ -55,42 +55,38 @@ class Profiler_Profiler {
     {
         $logs = Profiler_Console::getLogs();
 
-
         foreach ($logs as $type => $data) {
             // Console data will already be properly formatted.
             if ($type === 'console') {
                 continue;
             }
 
-            // Ignore empty message lists
-            if (!$data['count']) {
-                continue;
-            }
-
             foreach ($data['messages'] as $message) {
-                $data = $message;
-
                 switch ($type) {
                     case 'logs':
-                        $data['type'] = 'log';
-                        $data['data'] = print_r($message['data'], true);
+                        $message['type'] = 'log';
+                        if (!is_scalar($message['data'])) {
+                            $message['data'] = json_encode($message['data'], JSON_PRETTY_PRINT) ?: '';
+                        } else {
+                            $message['data'] = strval($message['data']);
+                        }
                         break;
                     case 'memory':
-                        $data['type'] = 'memory';
-                        $data['data'] = $this->getReadableFileSize($data['data']);
+                        $message['type'] = 'memory';
+                        $message['data'] = $this->getReadableFileSize($message['data']);
                         break;
                     case 'speed':
-                        $data['type'] = 'speed';
-                        $data['data'] = $this->getReadableTime(($message['data'] - $this->startTime) * 1000);
+                        $message['type'] = 'speed';
+                        $message['data'] = $this->getReadableTime(($message['data'] - $this->startTime) * 1000);
                         break;
                     case 'benchmarks':
-                        $data['type'] = 'benchmark';
-                        $data['data'] = $this->getReadableTime($message['end_time'] - $message['start_time']);
+                        $message['type'] = 'benchmark';
+                        $message['data'] = $this->getReadableTime($message['end_time'] - $message['start_time']);
                         break;
                 }
 
-                if (isset($data['type'])) {
-                    $logs['console']['messages'][] = $data;
+                if (isset($message['type'])) {
+                    $logs['console']['messages'][] = $message;
                 }
             }
         }
@@ -231,9 +227,12 @@ class Profiler_Profiler {
         $lastSizeString = end($sizes);
 
         if ($size < 1024) {
-            $retString = '%01d %s';
+            $retString = '%d %s';
         } else {
             foreach ($sizes as $sizeString) {
+                if ($size < 1024) {
+                    break;
+                }
                 if ($sizeString != $lastSizeString) {
                     $size /= 1024;
                 }
