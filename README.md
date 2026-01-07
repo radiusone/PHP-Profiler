@@ -1,77 +1,77 @@
 # PHP Profiler #
-Version 2
+Version 3
 
-by Steven Surowiec
-<steven.surowiec@gmail.com>
-
-converted to Composer
-
-by dubcanada
+[Original code](https://github.com/steves/PHP-Profiler) by Steven Surowiec
 
 ## Introduction ##
-PHP Profiler is a fork of PHP Quick Profiler by Ryan Campbell of [Particletree](http://particletree.com/)
+A tool to log some basic debug info, for display in your app.
 
 ## Installation ##
-Setup is very easy and straight-forward. There are five primary steps that need to be done.
-
-1. Checkout the code into your libraries directory so that the classes can be auto loaded.
-2. Instantiate Profiler_Profiler
-3. At the end of your application after all else is done call the display() method on Profiler_Profiler.
+`composer require --dev radiusone/php-profiler`
 
 ## Setup and Usage ##
-Setting up PHP Profiler is quite simple. Below is a short code sample of the latest version.
+The profiler needs to be instantiated before collecting data. After data collection is complete,
+results can be displayed. For example:
 
-    $profiler = new Profiler_Profiler();
-    Profiler_Console::logSpeed('Start Sample run');
-    Profiler_Console::logMemory($object);
-    Profiler_Console::logSpeed('End Sample run');
-    $profiler->display();
+```php
+use PhpProfiler\Console;
+use PhpProfiler\Profiler;
 
-Exceptions can also be logged:
+$profiler = new Profiler();
+Console::logSpeed('Start Sample run');
+Console::logMemory($object);
+Console::logSpeed('End Sample run');
+// Exceptions can also be logged:
+try {
+    // Some code goes here
+} catch (Exception $e) {
+    Console::logError($e);
+}
 
-    try {
-      // Some code goes here
+// Database queries can be logged as well:
+Console::logQuery($sql);  // Starts timer for query
+$res = $db->execute($sql);
+Console::logQuery($sql);  // Ends timer for query
+
+// or manually
+$start = microtime(true);
+$res = $db->execute($sql);
+$end = microtime(true);
+Console::logQueryManually($sql, null, $start, $end);
+
+$profiler->display();
+```
+
+You can use a custom callback to explain queries for console
+```php
+$profiler = new Profiler(['query_explain_callback' => fn ($sql) => MyClass::someMethod($sql)]);
+Console::logQuery($sql); // Starts timer for query
+$res = $db->execute($sql);
+Console::logQuery($sql); // Ends timer for query
+$profiler->display();
+
+class My_Class {
+    /**
+     * @param string $sql query with 'EXPLAIN' already added
+     * @return array{possible_keys: string, key: string, type: string, rows: string}[]|null
+     */
+    public static function someMethod(string $sql): array|null
+    {
+      $res = get_db()->execute($sql);
+      return $res->fetchAll($res);
     }
-    catch (Exception $e) {
-      Profiler_Console::logError($e, $e->getMessage());
-    }
-
-Database queries can be logged as well:
-
-    Profiler_Console::logQuery($sql);  // Starts timer for query
-    $res = mysql_query($sql);
-    Profiler_Console::logQuery($sql);  // Ends timer for query
-
-or manually
-
-    $start = microtime(true);
-    $res = mysql_query($sql);
-    $end = microtime(true);
-    Profiler_Console::logQueryManually($sql, null, $start, $end);
-
-Using a custom callback to explain queries for console
-
-    $profiler = Profiler_Profiler(array('query_explain_callback' => array('My_Class', 'someMethod')));
-    Profiler_Console::logQuery($sql); // Starts timer for query
-    $res = mysql_query($sql);
-    Profiler_Console::logQuery($sql); // Ends timer for query
-    $profiler->display();
-
-    class My_Class {
-      // $sql gets passed in with 'EXPLAIN' already added.
-      public static function someMethod($sql) {
-        $res = mysql_query($sql);
-        return mysql_fetch_assoc($res);
-      }
-    }
+}
+```
 
 ## Configuration ##
 PHP Profiler lets you pass in some configuration options to help allow it to suit your own needs.
 
-- **query_explain_callback** is the callback used to explain SQL queries to get additional information on them. The format used should be the same as that used by PHP's [call_user_func](http://us2.php.net/call_user_func) function.
-- **query_profiler_callback** is used to integrate an extended query profiler such as [MySQL's query profiler](http://wiki.github.com/steves/PHP-Profiler/the-extended-query-profiler).
-
-For additional documentation and code samples see the wiki.
+- **query_explain_callback** is the callback used to explain SQL queries to get additional
+information on them. It should accept a string (the query, with "EXPLAIN" prepended) and
+return a list of arrays, with keys conforming to the results of an `EXPLAIN` query in MySQL.
+- **query_profiler_callback** is the callback used to integrate an extended query profiler such 
+as [MySQL's](https://dev.mysql.com/doc/refman/8.4/en/show-profile.html). It should accept a string
+and return a list of arrays, with keys conforming to the results of a `SHOW PROFILE` query in MySQL.
 
 ## Features ##
 Below are some of the features of PHP Profiler
@@ -85,6 +85,3 @@ Below are some of the features of PHP Profiler
 - Log memory usage of any string, variable or object
 - Log specific points in your script to see how long it takes to get to them
 - See how many queries on a given page are inserts, updates, selects and deletes with query type counting
-
-## Sites Using PHP Profiler ##
-Using PHP Profiler on your site? Let me know! If you don't want to be featured here just say so, but I still like knowing how people are using PHP Profiler so send me a message or an email and let me know.
