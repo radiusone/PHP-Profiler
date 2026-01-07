@@ -1,4 +1,10 @@
 <?php
+declare(strict_types=1);
+
+namespace PhpProfiler;
+
+use Exception;
+
 /**
  * Port of PHP Quick Profiler by Ryan Campbell
  * Original URL: http://particletree.com/features/php-quick-profiler
@@ -12,7 +18,7 @@
  *     queries: array<string, array{sql: string, start_time: float, end_time: float|null, explain: array{possible_keys: string, key: string, type: string, rows: string}[]|null}[]>|array{},
  * }
  */
-class Profiler_Console {
+class Console {
     /**
      * Holds the logs used when the console is displayed.
      * @var Logs

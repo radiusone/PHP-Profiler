@@ -1,13 +1,17 @@
 <?php
+declare(strict_types=1);
+
+namespace PhpProfiler;
+
 /**
  * Port of PHP Quick Profiler by Ryan Campbell
  * Original URL: http://particletree.com/features/php-quick-profiler
  *
- * @phpstan-import-type Logs from Profiler_Console
+ * @phpstan-import-type Logs from Console
  */
-class Profiler_Profiler {
+class Profiler {
     /**
-     * Holds log data collected by Profiler_Console
+     * Holds log data collected by Console
      *
      * @var array{
      *     messages?: array{
@@ -85,7 +89,7 @@ class Profiler_Profiler {
     protected function gatherConsoleData(): void
     {
         /** @var Logs $logs */
-        $logs = Profiler_Console::getLogs();
+        $logs = Console::getLogs();
         $this->output['messages'] = [
             'log' => [],
             'memory' => [],
@@ -183,7 +187,7 @@ class Profiler_Profiler {
     protected function gatherQueryData(): void
     {
         /** @var Logs $logs */
-        $logs = Profiler_Console::getLogs();
+        $logs = Console::getLogs();
         $queries = [];
         $queryTotals = ['duplicates' => 0, 'select' => [], 'insert' => [], 'update' => [], 'delete' => []];
         $queryTypes = ['select', 'update', 'delete', 'insert'];

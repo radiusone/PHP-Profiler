@@ -1,13 +1,14 @@
 {
     "name": "radiusone/php-profiler",
     "autoload": {
+        "psr-4": {
+            "PhpProfiler\\": "profiler/"
+        },
         "files": [
-            "profiler/Profiler.php",
-            "profiler/Console.php",
             "profiler/helpers.php"
         ]
     },
-    "description": "PHP Quick Profiler Fork",
+    "description": "PHP Profiler",
     "authors": [
         {
             "name": "Ryan Campbell",
@@ -15,14 +16,7 @@
         },
         {
             "name": "Steven Surowiec",
-            "email": "steven.surowiec@gmail.com",
-            "role": "Developer"
-        },
-        {
-            "name": "Steven Verbeek",
-            "email": "dubcanada@gmail.com",
-            "homepage": "http://dubcanada.net",
-            "role": "Composer"
+            "role": "Original Developer"
         }
     ],
     "require": {
