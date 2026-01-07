@@ -17,7 +17,7 @@
  *         sql: string,
  *         time: string,
  *         duplicate: bool,
- *         explain: array{possible_keys: string, key: string, type: string, rows: string}|null,
+ *         explain: array{possible_keys: string, key: string, type: string, rows: string}[]|null,
  *         profile: array{Status: string, Duration: string}[]|null
  *      }[],
  *     queryTotals: array{
@@ -513,21 +513,18 @@
                                 <?php if ($query['duplicate']): ?>
                                     <b class="duplicate"><?= __('Duplicate query') ?></b> ·
                                 <?php endif ?>
-                                <?php if (isset($query['explain']['possible_keys'])): ?>
+                                <?php if (isset($query['explain'])): ?>
+                                    <?php foreach ($query['explain'] as $exp): ?>
                                     <?= __('Possible Keys:') ?>
-                                    <b><?= htmlspecialchars($query['explain']['possible_keys']) ?></b> ·
-                                <?php endif ?>
-                                <?php if (isset($query['explain']['key'])): ?>
+                                    <b><?= htmlspecialchars($exp['possible_keys']) ?></b> ·
                                     <?= __('Keys Used:') ?>
-                                    <b><?= htmlspecialchars($query['explain']['key']) ?></b> ·
-                                <?php endif ?>
-                                <?php if (isset($query['explain']['type'])): ?>
+                                    <b><?= htmlspecialchars($exp['key']) ?></b> ·
                                     <?= __('Type:') ?>
-                                    <b><?= htmlspecialchars($query['explain']['type']) ?></b> ·
-                                <?php endif ?>
-                                <?php if (isset($query['explain']['rows'])): ?>
+                                    <b><?= htmlspecialchars($exp['type']) ?></b> ·
                                     <?= __('Rows:') ?>
-                                    <b><?= htmlspecialchars($query['explain']['rows']) ?></b> ·
+                                    <b><?= htmlspecialchars($exp['rows']) ?></b>
+                                    <br/>
+                                    <?php endforeach ?>
                                 <?php endif ?>
                                 <?php if (!empty($query['time'])): ?>
                                     <?= __('Speed:') ?>

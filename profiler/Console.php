@@ -9,7 +9,7 @@
  *     error: array{data: string, file: string, line: int}[]|array{},
  *     speed: array{data: float, name: string}[]|array{},
  *     benchmark: array<string, array{start_time: float, end_time: float|null, name: string}>|array{},
- *     queries: array<string, array{sql: string, start_time: float, end_time: float|null, explain: array{possible_keys: string, key: string, type: string, rows: string}|null}[]>|array{},
+ *     queries: array<string, array{sql: string, start_time: float, end_time: float|null, explain: array{possible_keys: string, key: string, type: string, rows: string}[]|null}[]>|array{},
  * }
  */
 class Profiler_Console {
@@ -99,7 +99,7 @@ class Profiler_Console {
      * Records how long a query took to run when the same query is passed in twice.
      *
      * @param string $sql
-     * @param array{possible_keys: string, key: string, type: string, rows: string}|null $explain
+     * @param array{possible_keys: string, key: string, type: string, rows: string}[]|null $explain
      * @return void
      */
     public static function logQuery(string $sql, ?array $explain = null): void
@@ -135,7 +135,7 @@ class Profiler_Console {
      * Records how long a query took to run when you already know the details.
      *
      * @param string $sql
-     * @param array{possible_keys: string, key: string, type: string, rows: string}|null $explain
+     * @param array{possible_keys: string, key: string, type: string, rows: string}[]|null $explain
      * @param int|float $start start timestamp
      * @param int|float $end end timestamp (end-start should give duration in seconds)
      * @return void

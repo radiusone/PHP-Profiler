@@ -24,7 +24,7 @@ class Profiler_Profiler {
      *         sql: string,
      *         time: string,
      *         duplicate: bool,
-     *         explain: array{possible_keys: string, key: string, type: string, rows: string}|null,
+     *         explain: array{possible_keys: string, key: string, type: string, rows: string}[]|null,
      *         profile: array{Status: string, Duration: string}[]|null
      *      }[],
      *     queryTotals?: array{
@@ -45,7 +45,7 @@ class Profiler_Profiler {
      * Sets the configuration options for this object and sets the start time.
      *
      * @param array{
-     *     query_explain_callback?: callable(string):(array{possible_keys: string, key: string, type: string, rows: string}|null),
+     *     query_explain_callback?: callable(string):(array{possible_keys: string, key: string, type: string, rows: string}[]|null),
      *     query_profiler_callback?: callable(string):(array{Status: string, Duration: float}[]|null),
      * } $config List of configuration options
      * @param int|float|null $startTime Time to use as the start time of the profiler
@@ -61,7 +61,7 @@ class Profiler_Profiler {
     /**
      * Shortcut for setting the callback used to explain queries.
      *
-     * @param callable(string):(array{possible_keys: string, key: string, type: string, rows: string}|null) $callback
+     * @param callable(string):(array{possible_keys: string, key: string, type: string, rows: string}[]|null) $callback
      */
     public function setQueryExplainCallback(callable $callback): void
     {
@@ -338,7 +338,7 @@ class Profiler_Profiler {
      * Used with a callback to allow integration into DAL's to explain an executed query.
      *
      * @param string $sql The query that is being explained
-     * @return array{possible_keys: string, key: string, type: string, rows: string}|null
+     * @return array{possible_keys: string, key: string, type: string, rows: string}[]|null
      */
     protected function attemptToExplainQuery(string $sql): ?array
     {
