@@ -45,7 +45,14 @@ class Profiler_Console {
      */
     public static function logMemory(?object $object = null, string $name = 'PHP'): void
     {
-        $memory = $object ? strlen(serialize($object)) : memory_get_usage();
+        if (is_null($object)) {
+            $memory = memory_get_usage();
+        } else {
+            $used = memory_get_usage();
+            $temp = unserialize(serialize($object));
+            $memory = memory_get_usage() - $used;
+            unset($temp);
+        }
 
         $log_item = [
             'data' => $memory,
