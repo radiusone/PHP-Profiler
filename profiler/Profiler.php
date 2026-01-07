@@ -259,8 +259,9 @@ class Profiler_Profiler {
         $this->gatherMemoryData();
         $this->gatherQueryData();
         $this->gatherSpeedData();
+        $output = $this->output;
 
-        Profiler_Display::display($this->output, $this->config);
+        require_once(__DIR__ . '/resources/profiler.inc');
     }
 
     /**
