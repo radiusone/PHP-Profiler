@@ -68,13 +68,13 @@ class Profiler_Profiler {
                         }
                         break;
                     case 'memory':
-                        $message['data'] = $this->getReadableFileSize($message['data']);
+                        $message['data'] = self::getReadableFileSize($message['data']);
                         break;
                     case 'speed':
-                        $message['data'] = $this->getReadableTime(($message['data'] - $this->startTime) * 1000);
+                        $message['data'] = self::getReadableTime(($message['data'] - $this->startTime) * 1000);
                         break;
                     case 'benchmark':
-                        $message['data'] = $this->getReadableTime($message['end_time'] - $message['start_time']);
+                        $message['data'] = self::getReadableTime($message['end_time'] - $message['start_time']);
                         break;
                     case 'error':
                         break;
@@ -147,7 +147,7 @@ class Profiler_Profiler {
                 $query = [
                     'sql' => $log['sql'],
                     'explain' => $log['explain'],
-                    'time' => $this->getReadableTime($log['end_time'] - $log['start_time']),
+                    'time' => self::getReadableTime($log['end_time'] - $log['start_time']),
                     'duplicate' => $i > 0,
                     'profile' => null,
                 ];
@@ -174,12 +174,12 @@ class Profiler_Profiler {
             $tq_time = array_sum(array_column($tq, 'time'));
             $queryTotals[$type] = [
                 'total' => count($tq),
-                'time' => $this->getReadableTime($tq_time),
+                'time' => self::getReadableTime($tq_time),
                 'percentage' => round(count($tq) / count($queries) * 100, 2),
                 'time_percentage' => round($tq_time / $queryTotals['time'] * 100, 2),
             ];
         }
-        $queryTotals['time'] = $this->getReadableTime($queryTotals['time']);
+        $queryTotals['time'] = self::getReadableTime($queryTotals['time']);
         $this->output['queries'] = $queries;
         $this->output['queryTotals'] = $queryTotals;
     }
@@ -202,7 +202,7 @@ class Profiler_Profiler {
      * @param string|null $retString The format of the return string
      * @return string
      */
-    public function getReadableFileSize(int $size, string|null $retString = null): string
+    public static function getReadableFileSize(int $size, string|null $retString = null): string
     {
         $sizes = ['bytes', 'kB', 'MB', 'GB', 'TB'];
 
@@ -232,7 +232,7 @@ class Profiler_Profiler {
      * @param int|float $time
      * @return string
      */
-    public function getReadableTime(int|float $time): string
+    public static function getReadableTime(int|float $time): string
     {
         if ($time >= 1000 && $time < 60000) {
             $unit = 's';
