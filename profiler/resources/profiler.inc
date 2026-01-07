@@ -435,26 +435,26 @@
                         </div>
                         <div>
                             <var><?= htmlspecialchars($output['queryTotals']['duplicates']) ?></var>
-                            <h4><?= __('Duplicates') ?></h4>
+                            <h4><?= __('Duplicated Queries') ?></h4>
                         </div>
                         <div>
-                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['types']['select']['total'], $output['queryTotals']['types']['select']['percentage'])) ?></var>
-                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['types']['select']['time'], $output['queryTotals']['types']['select']['time_percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['select']['total'], $output['queryTotals']['select']['percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['select']['time'], $output['queryTotals']['select']['time_percentage'])) ?></var>
                             <h4><?= __('Selects') ?></h4>
                         </div>
                         <div>
-                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['types']['update']['total'], $output['queryTotals']['types']['update']['percentage'])) ?></var>
-                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['types']['update']['time'], $output['queryTotals']['types']['update']['time_percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['update']['total'], $output['queryTotals']['update']['percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['update']['time'], $output['queryTotals']['update']['time_percentage'])) ?></var>
                             <h4><?= __('Updates') ?></h4>
                         </div>
                         <div>
-                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['types']['insert']['total'], $output['queryTotals']['types']['insert']['percentage'])) ?></var>
-                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['types']['insert']['time'], $output['queryTotals']['types']['insert']['time_percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['insert']['total'], $output['queryTotals']['insert']['percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['insert']['time'], $output['queryTotals']['insert']['time_percentage'])) ?></var>
                             <h4><?= __('Inserts') ?></h4>
                         </div>
                         <div>
-                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['types']['delete']['total'], $output['queryTotals']['types']['delete']['percentage'])) ?></var>
-                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['types']['delete']['time'], $output['queryTotals']['types']['delete']['time_percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['delete']['total'], $output['queryTotals']['delete']['percentage'])) ?></var>
+                            <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['delete']['time'], $output['queryTotals']['delete']['time_percentage'])) ?></var>
                             <h4><?= __('Deletes') ?></h4>
                         </div>
                     </div>

@@ -107,8 +107,8 @@ class Profiler_Console {
 
         self::$logs['queries']['messages'][$hash][] = [
             'start_time' => microtime(true),
-            'end_time' => false,
-            'explain' => false,
+            'end_time' => null,
+            'explain' => null,
             'sql' => $sql,
         ];
     }
@@ -131,8 +131,8 @@ class Profiler_Console {
         $hash = md5($sql);
 
         self::$logs['queries']['messages'][$hash][] = [
-            'start_time' => $start,
-            'end_time' => $end,
+            'start_time' => floatval($start),
+            'end_time' => floatval($end),
             'explain' => $explain,
             'sql' => $sql,
         ];

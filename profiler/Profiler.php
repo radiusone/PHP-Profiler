@@ -134,65 +134,56 @@ class Profiler_Profiler {
      */
     public function gatherQueryData(): void
     {
+        /** @var Logs $logs */
+        $logs = Profiler_Console::getLogs();
         $queries = [];
-        $type_default = ['total' => 0, 'time' => 0, 'percentage' => 0, 'time_percentage' => 0];
-        $types = ['select' => $type_default, 'update' => $type_default, 'insert' => $type_default, 'delete' => $type_default];
-        $queryTotals = ['all' => 0, 'count' => 0, 'time' => 0, 'duplicates' => 0, 'types' => $types];
+        $queryTotals = ['all' => 0, 'duplicates' => 0];
         $queryTypes = ['select', 'update', 'delete', 'insert'];
 
-        foreach($this->output['logs']['queries']['messages'] as $entries) {
+        foreach($logs['queries']['messages'] as $entries) {
             if (count($entries) > 1) {
                 $queryTotals['duplicates'] += 1;
             }
 
             foreach ($entries as $i => $log) {
-                if (isset($log['end_time'])) {
-                    $query = [
-                        'sql' => $log['sql'],
-                        'explain' => $log['explain'],
-                        'time' => $log['end_time'] - $log['start_time'],
-                        'duplicate' => $i > 0,
-                    ];
+                if (!isset($log['end_time'])) {
+                    continue;
+                }
+                $query = [
+                    'sql' => $log['sql'],
+                    'explain' => $log['explain'],
+                    'time' => $this->getReadableTime($log['end_time'] - $log['start_time']),
+                    'duplicate' => $i > 0,
+                    'profile' => null,
+                ];
 
-                    // Lets figure out the type of query for our counts
-                    $trimmed = trim($log['sql']);
-                    $type = strtolower(substr($trimmed, 0, strpos($trimmed, ' ')));
+                // If an explain callback is setup try to get the explain data
+                $type = preg_match('/^ *(' . implode('|', $queryTypes) . ') /i', $log['sql']);
+                if ($type && !empty($this->config['query_explain_callback'])) {
+                    $query['explain'] ??= $this->attemptToExplainQuery($query['sql']);
+                }
 
-                    if (in_array($type, $queryTypes) && isset($queryTotals['types'][$type])) {
-                        $queryTotals['types'][$type]['total'] += 1;
-                        $queryTotals['types'][$type]['time'] += $query['time'];
-                    }
-
-                    // Need to get total times and a readable format of our query time
-                    $queryTotals['time'] += $query['time'];
-                    $queryTotals['all'] += 1;
-                    $query['time'] = $this->getReadableTime($query['time']);
-
-                    // If an explain callback is setup try to get the explain data
-                    if (isset($queryTypes[$type]) && !empty($this->config['query_explain_callback'])) {
-                        $query['explain'] = $this->attemptToExplainQuery($query['sql']);
-                    }
-
-                    // If a query profiler callback is setup get the profiler data
-                    if (!empty($this->config['query_profiler_callback'])) {
-                        $query['profile'] = $this->attemptToProfileQuery($query['sql']);
-                    }
+                // If a query profiler callback is setup get the profiler data
+                if (!empty($this->config['query_profiler_callback'])) {
+                    $query['profile'] = $this->attemptToProfileQuery($query['sql']);
+                }
 
                     $queries[] = $query;
                 }
             }
         }
 
-        // Go through the type totals and calculate percentages
-        foreach ($queryTotals['types'] as $type => $stats) {
-            $total_perc = !$stats['total'] ? 0 : round(($stats['total'] / $queryTotals['count']) * 100, 2);
-            $time_perc = !$stats['time'] ? 0 : round(($stats['time'] / $queryTotals['time']) * 100, 2);
-
-            $queryTotals['types'][$type]['percentage'] = $total_perc;
-            $queryTotals['types'][$type]['time_percentage'] = $time_perc;
-            $queryTotals['types'][$type]['time'] = $this->getReadableTime($queryTotals['types'][$type]['time']);
+        $queryTotals['time'] = array_sum(array_column($queries, 'time'));
+        foreach ($queryTypes as $type) {
+            $tq = array_filter($queries, fn ($v) => str_starts_with(strtolower($v), $type));
+            $tq_time = array_sum(array_column($tq, 'time'));
+            $queryTotals[$type] = [
+                'total' => count($tq),
+                'time' => $this->getReadableTime($tq_time),
+                'percentage' => round(count($tq) / count($queries) * 100, 2),
+                'time_percentage' => round($tq_time / $queryTotals['time'] * 100, 2),
+            ];
         }
-
         $queryTotals['time'] = $this->getReadableTime($queryTotals['time']);
         $this->output['queries'] = $queries;
         $this->output['queryTotals'] = $queryTotals;
