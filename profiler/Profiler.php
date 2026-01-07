@@ -79,7 +79,7 @@ class Profiler_Profiler {
     /**
      * Collects and aggregates data recorded by Profiler_Console.
      */
-    public function gatherConsoleData(): void
+    protected function gatherConsoleData(): void
     {
         /** @var Logs $logs */
         $logs = Profiler_Console::getLogs();
@@ -121,42 +121,39 @@ class Profiler_Profiler {
     /**
      * Gathers and aggregates data on included files such as size
      */
-    public function gatherFileData(): void
+    protected function gatherFileData(): void
     {
-        $files = get_included_files();
-        $fileList = [];
-        $fileTotals = ['count' => count($files), 'size' => 0, 'largest' => 0];
-
-        foreach($files as $file) {
-            $size = filesize($file);
-            $fileList[] = ['name' => $file, 'size' => $this->getReadableFileSize($size)];
-            $fileTotals['size'] += $size;
-            $fileTotals['largest'] = max($size, $fileTotals['largest']);
-        }
-
-        $fileTotals['size'] = $this->getReadableFileSize($fileTotals['size']);
-        $fileTotals['largest'] = $this->getReadableFileSize($fileTotals['largest']);
+        $fileList = array_map(function($v) {
+            return [
+                'name' => $v,
+                'bytes' => $bytes = filesize($v) ?: 0,
+                'size' => self::getReadableFileSize($bytes),
+            ];
+        }, get_included_files());
 
         $this->output['files'] = $fileList;
-        $this->output['fileTotals'] = $fileTotals;
+        $bytes = array_column($fileList, 'bytes');
+        $this->output['fileTotals'] = [
+            'size' => self::getReadableFileSize(array_sum($bytes)),
+            'largest' => self::getReadableFileSize(max($bytes)),
+        ];
     }
 
     /**
      * Gets the peak memory usage the configured memory limit
      */
-    public function gatherMemoryData(): void
+    protected function gatherMemoryData(): void
     {
-        $memoryTotals = [];
-        $memoryTotals['used'] = $this->getReadableFileSize(memory_get_peak_usage());
-        $memoryTotals['total'] = ini_get('memory_limit');
-
-        $this->output['memoryTotals'] = $memoryTotals;
+        $this->output['memoryTotals'] = [
+            'used' => self::getReadableFileSize(memory_get_peak_usage()),
+            'total' => ini_get('memory_limit'),
+        ];
     }
 
     /**
      * Gathers and aggregates data regarding executed queries
      */
-    public function gatherQueryData(): void
+    protected function gatherQueryData(): void
     {
         /** @var Logs $logs */
         $logs = Profiler_Console::getLogs();
@@ -192,8 +189,7 @@ class Profiler_Profiler {
                     $query['profile'] = $this->attemptToProfileQuery($query['sql']);
                 }
 
-                    $queries[] = $query;
-                }
+                $queries[] = $query;
             }
         }
 
@@ -217,12 +213,12 @@ class Profiler_Profiler {
      * Calculates the execution time from the start of profiling to *now* and
      * collects the congirued maximum execution time.
      */
-    public function gatherSpeedData(): void
+    protected function gatherSpeedData(): void
     {
-        $speedTotals = [];
-        $speedTotals['total'] = $this->getReadableTime((microtime(true) - $this->startTime)*1000);
-        $speedTotals['allowed'] = ini_get('max_execution_time');
-        $this->output['speedTotals'] = $speedTotals;
+        $this->output['speedTotals'] = [
+            'total' => self::getReadableTime((microtime(true) - $this->startTime)*1000),
+            'allowed' => ini_get('max_execution_time'),
+        ];
     }
 
     /**
@@ -278,16 +274,25 @@ class Profiler_Profiler {
     }
 
     /**
-     * Collects data from the console and performs various calculations on it before
-     * displaying the console on screen.
+     * Populate the output property with data from the console and format it for output
+     *
+     * @return void
      */
-    public function display(): void
+    public function prepareOutput(): void
     {
         $this->gatherConsoleData();
         $this->gatherFileData();
         $this->gatherMemoryData();
         $this->gatherQueryData();
         $this->gatherSpeedData();
+    }
+
+    /**
+     * Display the console on screen.
+     */
+    public function display(): void
+    {
+        $this->prepareOutput();
         $output = $this->output;
 
         require_once(__DIR__ . '/resources/profiler.inc');
