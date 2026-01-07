@@ -83,6 +83,14 @@ class Profiler_Profiler {
     {
         /** @var Logs $logs */
         $logs = Profiler_Console::getLogs();
+        $this->output['messages'] = [
+            'log' => [],
+            'memory' => [],
+            'speed' => [],
+            'benchmark' => [],
+            'error' => [],
+            'all' => [],
+        ];
 
         foreach ($logs as $type => $data) {
             foreach ($data['messages'] as $message) {
@@ -179,6 +187,7 @@ class Profiler_Profiler {
                 ];
 
                 // If an explain callback is setup try to get the explain data
+
                 $type = preg_match('/^ *(' . implode('|', $queryTypes) . ') /i', $log['sql']);
                 if ($type && !empty($this->config['query_explain_callback'])) {
                     $query['explain'] ??= $this->attemptToExplainQuery($query['sql']);
@@ -195,7 +204,7 @@ class Profiler_Profiler {
 
         $queryTotals['time'] = array_sum(array_column($queries, 'time'));
         foreach ($queryTypes as $type) {
-            $tq = array_filter($queries, fn ($v) => str_starts_with(strtolower($v), $type));
+            $tq = array_filter($queries, fn ($v) => str_starts_with(strtolower($v['sql']), $type));
             $tq_time = array_sum(array_column($tq, 'time'));
             $queryTotals[$type] = [
                 'total' => count($tq),
