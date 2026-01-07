@@ -9,11 +9,11 @@ class Profiler_Console {
      * @var array<string,array<string,mixed>>
      */
     private static array $logs = [
-        'console' => ['messages' => []],
+        'log' => ['messages' => []],
         'memory' => ['messages' => []],
-        'errors' => ['messages' => []],
+        'error' => ['messages' => []],
         'speed' => ['messages' => []],
-        'benchmarks' => ['messages' => []],
+        'benchmark' => ['messages' => []],
         'queries' => ['messages' => []],
     ];
 
@@ -23,7 +23,7 @@ class Profiler_Console {
      * @return void
      */
     public static function log(mixed $data): void {
-        self::$logs['console']['messages'][] = ['data' => $data];
+        self::$logs['log']['messages'][] = ['data' => $data];
     }
 
     /**
@@ -61,7 +61,7 @@ class Profiler_Console {
             'line' => $exception->getLine(),
         ];
 
-        self::$logs['console'][] = $log_item;
+        self::$logs['error']['messages'][] = $log_item;
     }
 
     /**
@@ -151,14 +151,14 @@ class Profiler_Console {
         if (isset(self::$logs['benchmarks']['messages'][$key])) {
             $benchKey = md5(microtime(true));
 
-            self::$logs['benchmarks']['messages'][$benchKey] = self::$logs['benchmarks']['messages'][$key];
-            self::$logs['benchmarks']['messages'][$benchKey]['end_time'] = microtime(true);
+            self::$logs['benchmark']['messages'][$benchKey] = self::$logs['benchmarks']['messages'][$key];
+            self::$logs['benchmark']['messages'][$benchKey]['end_time'] = microtime(true);
 
-            unset(self::$logs['benchmarks']['messages'][$key]);
+            unset(self::$logs['benchmark']['messages'][$key]);
             return;
         }
 
-        self::$logs['benchmarks']['messages'][$key] = [
+        self::$logs['benchmark']['messages'][$key] = [
             'start_time' => microtime(true),
             'end_time' => false,
             'name' => $name,

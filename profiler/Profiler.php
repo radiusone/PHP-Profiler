@@ -56,14 +56,10 @@ class Profiler_Profiler {
         $logs = Profiler_Console::getLogs();
 
         foreach ($logs as $type => $data) {
-            // Console data will already be properly formatted.
-            if ($type === 'console') {
-                continue;
-            }
-
             foreach ($data['messages'] as $message) {
+                $message['type'] = $type;
                 switch ($type) {
-                    case 'logs':
+                    case 'log':
                         $message['type'] = 'log';
                         if (!is_scalar($message['data'])) {
                             $message['data'] = json_encode($message['data'], JSON_PRETTY_PRINT) ?: '';
@@ -72,26 +68,25 @@ class Profiler_Profiler {
                         }
                         break;
                     case 'memory':
-                        $message['type'] = 'memory';
                         $message['data'] = $this->getReadableFileSize($message['data']);
                         break;
                     case 'speed':
-                        $message['type'] = 'speed';
                         $message['data'] = $this->getReadableTime(($message['data'] - $this->startTime) * 1000);
                         break;
-                    case 'benchmarks':
-                        $message['type'] = 'benchmark';
+                    case 'benchmark':
                         $message['data'] = $this->getReadableTime($message['end_time'] - $message['start_time']);
                         break;
+                    case 'error':
+                        break;
+                    default:
+                        continue(2);
                 }
 
-                if (isset($message['type'])) {
-                    $logs['console']['messages'][] = $message;
-                }
+                $this->output['messages'][$type][] =
+                $this->output['messages']['all'][] = $message;
             }
         }
 
-        $this->output['logs'] = $logs;
     }
 
     /**

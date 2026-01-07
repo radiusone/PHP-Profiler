@@ -1,11 +1,33 @@
 <?php
 /**
- * @var int $logCount
- * @var string $speedTotal
- * @var string $queryCount
- * @var string $memoryUsed
- * @var int $fileCount
- * @var array{'logs'|'files'|'fileTotals'|'queries'|'queryTotals'|'memoryTotals'|'speedTotals': array<string,mixed>} $output
+ * Holds log data collected by Profiler_Console
+ *
+ * @var array{
+ *     messages: array{
+ *          log: array,
+ *          memory: array,
+ *          error: array,
+ *          speed: array,
+ *          benchmark: array,
+ *          all: array
+ *     },
+ *     files: array{name: string, bytes: int, size: string},
+ *     fileTotals: array{size: string, largest: string},
+ *     queries: array<string,mixed>,
+ *     queryTotals: array{
+ *          total: int,
+ *          duplicates: int,
+ *          time: string,
+ *          'select'|'insert'|'update'|'delete': array{
+ *              total: int,
+ *              time: string,
+ *              percentage: string,
+ *              time_percentage: string
+ *          }
+ *     },
+ *     memoryTotals: array{used: string, total: string},
+ *     speedTotals: array{total: string, allowed: string}
+ * } $output
  */
 ?>
 <style>
@@ -197,8 +219,8 @@
                 background-color: var(--bg);
             }
 
-            &#profiler-console .side > div[data-toggle=errors],
-            &#profiler-console td.profiler-log.errors,
+            &#profiler-console .side > div[data-toggle=error],
+            &#profiler-console td.profiler-log.error,
             &#profiler-files .side > div {
                 --bg: #B72F09;
                 background-color: var(--bg);
@@ -218,8 +240,8 @@
                 background-color: var(--bg);
             }
 
-            &#profiler-console .side > div[data-toggle=benchmarks],
-            &#profiler-console td.profiler-log.benchmarks {
+            &#profiler-console .side > div[data-toggle=benchmark],
+            &#profiler-console td.profiler-log.benchmark {
                 --bg: #84A360;
                 background-color: var(--bg);
             }
@@ -283,19 +305,19 @@
     <div id="profiler">
         <div id="profiler-metrics">
             <div id="console" class="tab active">
-                <var><?= count($output['logs']['console']['messages']) ?></var>
+                <var><?= count($output['messages']['all']) ?></var>
                 <h4><?= __('Console') ?></h4>
             </div>
             <div id="speed" class="tab">
-                <var><?= htmlspecialchars($speedTotal) ?></var>
+                <var><?= htmlspecialchars($output['speedTotals']['total']) ?></var>
                 <h4><?= __('Load Time') ?></h4>
             </div>
             <div id="queries" class="tab">
-                <var><?= htmlspecialchars(sprintf(_('%d Queries'), $queryCount)) ?></var>
+                <var><?= htmlspecialchars(sprintf(_('%d Queries'), count($output['queries']))) ?></var>
                 <h4><?= __('Database') ?></h4>
             </div>
             <div id="memory" class="tab">
-                <var><?= htmlspecialchars($memoryUsed) ?></var>
+                <var><?= htmlspecialchars($output['memoryTotals']['used']) ?></var>
                 <h4><?= __('Memory Used') ?></h4>
             </div>
             <div id="files" class="tab">
@@ -306,28 +328,28 @@
 
         <div id="profiler-boxes">
             <div id="profiler-console" class="profiler-box active">
-                <?php if (count($output['logs']['console']['messages']) === 0): ?>
+                <?php if (count($output['messages']['all']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
                         <div data-toggle="log">
-                            <var><?= count($output['logs']['console']['messages']) ?></var>
+                            <var><?= count($output['messages']['log']) ?></var>
                             <h4><?= __('Logs') ?></h4>
                         </div>
-                        <div data-toggle="errors">
-                            <var><?= count($output['logs']['errors']['messages']) ?></var>
+                        <div data-toggle="error">
+                            <var><?= count($output['messages']['error']) ?></var>
                             <h4><?= __('Errors') ?></h4>
                         </div>
                         <div data-toggle="memory">
-                            <var><?= count($output['logs']['memory']['messages']) ?></var>
+                            <var><?= count($output['messages']['memory']) ?></var>
                             <h4><?= __('Memory') ?></h4>
                         </div>
                         <div data-toggle="speed">
-                            <var><?= count($output['logs']['speed']['messages']) ?></var>
+                            <var><?= count($output['messages']['speed']) ?></var>
                             <h4><?= __('Speed') ?></h4>
                         </div>
-                        <div data-toggle="benchmarks">
-                            <var><?= count($output['logs']['benchmarks']['messages']) ?></var>
+                        <div data-toggle="benchmark">
+                            <var><?= count($output['messages']['benchmark']) ?></var>
                             <h4><?= __('Benchmarks') ?></h4>
                         </div>
                     </div>
@@ -340,12 +362,12 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <?php foreach($output['logs']['console']['messages'] as $log): ?>
-                            <tr data-logtype="<?= $log['type'] ?? 'log' ?>">
-                                <td class="profiler-log fit-content <?= $log['type'] ?? 'log' ?>">
-                                    <?= $log['type'] ?? _('log') ?>
+                        <?php foreach($output['messages']['all'] as $log): ?>
+                            <tr data-logtype="<?= $log['type'] ?>">
+                                <td class="profiler-log fit-content <?= $log['type'] ?>">
+                                    <?= $log['type'] ?>
                                 </td>
-                                <?php switch($log['type'] ?? ''): case 'memory': ?>
+                                <?php switch($log['type']): case 'memory': ?>
                                 <td>
                                     <?= htmlspecialchars($log['dataType']) ?>
                                     <?= htmlspecialchars($log['name']) ?>
@@ -355,7 +377,7 @@
                                 </td>
                                 <?php break ?>
                                 <?php case 'speed': ?>
-                                <?php case 'benchmarks': ?>
+                                <?php case 'benchmark': ?>
                                 <td>
                                     <?= htmlspecialchars($log['name']) ?>
                                 </td>
@@ -384,7 +406,7 @@
                 <?php endif ?>
             </div>
             <div id="profiler-speed" class="profiler-box">
-                <?php if (count($output['logs']['speed']['messages']) === 0): ?>
+                <?php if (count($output['messages']['speed']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
@@ -405,8 +427,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($output['logs']['console']['messages'] as $log): ?>
-                        <?php if (($log['type'] ?? '') !== 'speed') continue ?>
+                        <?php foreach ($output['messages']['speed'] as $log): ?>
                         <tr>
                             <td>
                                 <?= htmlspecialchars($log['name']) ?>
@@ -517,7 +538,7 @@
                 <?php endif ?>
             </div>
             <div id="profiler-memory" class="profiler-box">
-                <?php if (count($output['logs']['memory']['messages']) === 0): ?>
+                <?php if (count($output['messages']['memory']) === 0): ?>
                     <h3><?= __('This panel has no log items') ?></h3>
                 <?php else: ?>
                     <div class="side">
@@ -539,8 +560,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($output['logs']['console']['messages'] as $log): ?>
-                        <?php if (($log['type'] ?? '') !== 'memory') continue ?>
+                        <?php foreach ($output['messages']['memory'] as $log): ?>
                             <tr>
                                 <td class="fit-content">
                                     <i><?= htmlspecialchars($log['dataType']) ?></i>
