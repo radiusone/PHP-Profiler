@@ -162,7 +162,7 @@ class Profiler_Profiler {
         $bytes = array_column($fileList, 'bytes');
         $this->output['fileTotals'] = [
             'size' => self::getReadableFileSize(array_sum($bytes)),
-            'largest' => self::getReadableFileSize(max($bytes)),
+            'largest' => self::getReadableFileSize($bytes ? max($bytes) : 0),
         ];
     }
 
@@ -185,7 +185,7 @@ class Profiler_Profiler {
         /** @var Logs $logs */
         $logs = Profiler_Console::getLogs();
         $queries = [];
-        $queryTotals = ['all' => 0, 'duplicates' => 0];
+        $queryTotals = ['duplicates' => 0, 'select' => [], 'insert' => [], 'update' => [], 'delete' => []];
         $queryTypes = ['select', 'update', 'delete', 'insert'];
 
         foreach($logs['queries'] as $entries) {
@@ -214,14 +214,22 @@ class Profiler_Profiler {
 
                 // If a query profiler callback is setup get the profiler data
                 if (!empty($this->config['query_profiler_callback'])) {
-                    $query['profile'] = $this->attemptToProfileQuery($query['sql']);
+                    $result = $this->attemptToProfileQuery($query['sql']);
+                    if ($result) {
+                        foreach ($result as $r) {
+                            $query['profile'][] = [
+                                'Status' => $r['Status'],
+                                'Duration' => $this->getReadableTime($r['Duration']),
+                            ];
+                        }
+                    }
                 }
 
                 $queries[] = $query;
             }
         }
 
-        $queryTotals['time'] = array_sum(array_column($queries, 'time'));
+        $t = array_sum(array_column($queries, 'time'));
         foreach ($queryTypes as $type) {
             $tq = array_filter($queries, fn ($v) => str_starts_with(strtolower($v['sql']), $type));
             $tq_time = array_sum(array_column($tq, 'time'));
@@ -229,10 +237,10 @@ class Profiler_Profiler {
                 'total' => count($tq),
                 'time' => self::getReadableTime($tq_time),
                 'percentage' => round(count($tq) / count($queries) * 100, 2),
-                'time_percentage' => round($tq_time / $queryTotals['time'] * 100, 2),
+                'time_percentage' => round($tq_time / $t * 100, 2),
             ];
         }
-        $queryTotals['time'] = self::getReadableTime($queryTotals['time']);
+        $queryTotals['time'] = self::getReadableTime($t);
         $this->output['queries'] = $queries;
         $this->output['queryTotals'] = $queryTotals;
     }

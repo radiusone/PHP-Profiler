@@ -458,11 +458,11 @@
                             <h4><?= __('Total Time') ?></h4>
                         </div>
                         <div>
-                            <var><?= htmlspecialchars($output['queryTotals']['duplicates']) ?></var>
+                            <var><?= $output['queryTotals']['duplicates'] ?></var>
                             <h4><?= __('Duplicated Queries') ?></h4>
                         </div>
                         <div>
-                            <?php if ($output['queryTotals']['select']['total'] > 0): ?>
+                            <?php if ($output['queryTotals']['select'] && $output['queryTotals']['select']['total'] > 0): ?>
                             <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['select']['total'], $output['queryTotals']['select']['percentage'])) ?></var>
                             <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['select']['time'], $output['queryTotals']['select']['time_percentage'])) ?></var>
                             <?php else: ?>
@@ -471,7 +471,7 @@
                             <h4><?= __('Selects') ?></h4>
                         </div>
                         <div>
-                            <?php if ($output['queryTotals']['update']['total'] > 0): ?>
+                            <?php if ($output['queryTotals']['update'] && $output['queryTotals']['update']['total'] > 0): ?>
                             <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['update']['total'], $output['queryTotals']['update']['percentage'])) ?></var>
                             <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['update']['time'], $output['queryTotals']['update']['time_percentage'])) ?></var>
                             <?php else: ?>
@@ -480,7 +480,7 @@
                             <h4><?= __('Updates') ?></h4>
                         </div>
                         <div>
-                            <?php if ($output['queryTotals']['insert']['total'] > 0): ?>
+                            <?php if ($output['queryTotals']['insert'] && $output['queryTotals']['insert']['total'] > 0): ?>
                             <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['insert']['total'], $output['queryTotals']['insert']['percentage'])) ?></var>
                             <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['insert']['time'], $output['queryTotals']['insert']['time_percentage'])) ?></var>
                             <h4><?= __('Inserts') ?></h4>
@@ -489,7 +489,7 @@
                             <?php endif ?>
                         </div>
                         <div>
-                            <?php if ($output['queryTotals']['delete']['total'] > 0): ?>
+                            <?php if ($output['queryTotals']['delete'] && $output['queryTotals']['delete']['total'] > 0): ?>
                             <var><?= htmlspecialchars(sprintf(_('%d (%0.2f%%)'), $output['queryTotals']['delete']['total'], $output['queryTotals']['delete']['percentage'])) ?></var>
                             <var><?= htmlspecialchars(sprintf(_('%s (%0.2f%%)'), $output['queryTotals']['delete']['time'], $output['queryTotals']['delete']['time_percentage'])) ?></var>
                             <?php else: ?>
