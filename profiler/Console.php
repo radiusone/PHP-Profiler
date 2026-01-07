@@ -4,12 +4,12 @@
  * Original URL: http://particletree.com/features/php-quick-profiler
  *
  * @phpstan-type Logs array{
- *     log: array{messages: array{data: mixed}},
- *     memory: array{messages: array{data: mixed, name: string, dataType: string}},
- *     error: array{messages: array{data: string, file: string, line: int}},
- *     speed: array{messages: array{data: float, name: string}},
- *     benchmark: array{messages: array<string, array{start_time: float, end_time: float|null, name: string}>},
- *     queries: array{'messages': array<string, array{sql: string, start_time: float, end_time: float, explain: array{'possible_keys'|'key'|'type'|'rows': string}}>}
+ *     log: array{data: mixed}[],
+ *     memory: array{data: int, name: string, dataType: string}[],
+ *     error: array{data: string, file: string, line: int}[],
+ *     speed: array{data: float, name: string}[],
+ *     benchmark: array<string, array{start_time: float, end_time: float|null, name: string}>,
+ *     queries: array<string, array{sql: string, start_time: float, end_time: float|null, explain: array{possible_keys: string, key: string, type: string, rows: string}|null}[]>
  * }
  */
 class Profiler_Console {
@@ -18,12 +18,12 @@ class Profiler_Console {
      * @var Logs
      */
     private static array $logs = [
-        'log' => ['messages' => []],
-        'memory' => ['messages' => []],
-        'error' => ['messages' => []],
-        'speed' => ['messages' => []],
-        'benchmark' => ['messages' => []],
-        'queries' => ['messages' => []],
+        'log' => [],
+        'memory' => [],
+        'error' => [],
+        'speed' => [],
+        'benchmark' => [],
+        'queries' => [],
     ];
 
     /**
@@ -33,7 +33,7 @@ class Profiler_Console {
      * @return void
      */
     public static function log(mixed $data): void {
-        self::$logs['log']['messages'][] = ['data' => $data];
+        self::$logs['log'][] = ['data' => $data];
     }
 
     /**
@@ -60,7 +60,7 @@ class Profiler_Console {
             'dataType' => gettype($object),
         ];
 
-        self::$logs['memory']['messages'][] = $log_item;
+        self::$logs['memory'][] = $log_item;
     }
 
     /**
@@ -78,7 +78,7 @@ class Profiler_Console {
             'line' => $exception->getLine(),
         ];
 
-        self::$logs['error']['messages'][] = $log_item;
+        self::$logs['error'][] = $log_item;
     }
 
     /**
@@ -92,17 +92,17 @@ class Profiler_Console {
     {
         $log_item = ['data' => microtime(true), 'name' => $name];
 
-        self::$logs['speed']['messages'][] = $log_item;
+        self::$logs['speed'][] = $log_item;
     }
 
     /**
      * Records how long a query took to run when the same query is passed in twice.
      *
      * @param string $sql
-     * @param array{'possible_keys'|'key'|'type'|'rows': string}|null $explain
+     * @param array{possible_keys: string, key: string, type: string, rows: string}|null $explain
      * @return void
      */
-    public static function logQuery(string $sql, array $explain = null): void
+    public static function logQuery(string $sql, ?array $explain = null): void
     {
         // We use a hash of the query for two reasons. One is because for large queries the
         // hash will be considerably smaller in memory. The second is to make a dump of the
@@ -111,18 +111,19 @@ class Profiler_Console {
 
         // If this query is in the log we need to see if an end time has been set. If no
         // end time has been set then we assume this call is closing a previous one.
-        if (count(self::$logs['queries']['messages'][$hash] ?? [])) {
-            $query = array_pop(self::$logs['queries']['messages'][$hash]);
+        $entry = self::$logs['queries'][$hash] ?? [];
+        if (count($entry)) {
+            $query = array_pop($entry);
             if (!$query['end_time']) {
                 $query['end_time'] = microtime(true);
                 $query['explain'] = $explain;
             }
-            self::$logs['queries']['messages'][$hash][] = $query;
+            self::$logs['queries'][$hash][] = $query;
 
             return;
         }
 
-        self::$logs['queries']['messages'][$hash][] = [
+        self::$logs['queries'][$hash][] = [
             'start_time' => microtime(true),
             'end_time' => null,
             'explain' => null,
@@ -134,7 +135,7 @@ class Profiler_Console {
      * Records how long a query took to run when you already know the details.
      *
      * @param string $sql
-     * @param array{'possible_keys'|'key'|'type'|'rows': string}|null $explain
+     * @param array{possible_keys: string, key: string, type: string, rows: string}|null $explain
      * @param int|float $start start timestamp
      * @param int|float $end end timestamp (end-start should give duration in seconds)
      * @return void
@@ -147,7 +148,7 @@ class Profiler_Console {
     ): void {
         $hash = md5($sql);
 
-        self::$logs['queries']['messages'][$hash][] = [
+        self::$logs['queries'][$hash][] = [
             'start_time' => floatval($start),
             'end_time' => floatval($end),
             'explain' => $explain,
@@ -164,17 +165,17 @@ class Profiler_Console {
     public static function logBenchmark(string $name): void {
         $key = 'benchmark_ ' . $name;
 
-        if (isset(self::$logs['benchmarks']['messages'][$key])) {
-            $benchKey = md5(microtime(true));
+        if (isset(self::$logs['benchmark'][$key])) {
+            $benchKey = md5(strval(microtime(true)));
 
-            self::$logs['benchmark']['messages'][$benchKey] = self::$logs['benchmarks']['messages'][$key];
-            self::$logs['benchmark']['messages'][$benchKey]['end_time'] = microtime(true);
+            self::$logs['benchmark'][$benchKey] = self::$logs['benchmark'][$key];
+            self::$logs['benchmark'][$benchKey]['end_time'] = microtime(true);
 
-            unset(self::$logs['benchmark']['messages'][$key]);
+            unset(self::$logs['benchmark'][$key]);
             return;
         }
 
-        self::$logs['benchmark']['messages'][$key] = [
+        self::$logs['benchmark'][$key] = [
             'start_time' => microtime(true),
             'end_time' => null,
             'name' => $name,

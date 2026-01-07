@@ -93,11 +93,10 @@ class Profiler_Profiler {
         ];
 
         foreach ($logs as $type => $data) {
-            foreach ($data['messages'] as $message) {
+            foreach ($data as $message) {
                 $message['type'] = $type;
                 switch ($type) {
                     case 'log':
-                        $message['type'] = 'log';
                         if (!is_scalar($message['data'])) {
                             $message['data'] = json_encode($message['data'], JSON_PRETTY_PRINT) ?: '';
                         } else {
@@ -169,7 +168,7 @@ class Profiler_Profiler {
         $queryTotals = ['all' => 0, 'duplicates' => 0];
         $queryTypes = ['select', 'update', 'delete', 'insert'];
 
-        foreach($logs['queries']['messages'] as $entries) {
+        foreach($logs['queries'] as $entries) {
             if (count($entries) > 1) {
                 $queryTotals['duplicates'] += 1;
             }
