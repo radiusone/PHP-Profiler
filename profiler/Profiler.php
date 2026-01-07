@@ -93,34 +93,51 @@ class Profiler_Profiler {
         ];
 
         foreach ($logs as $type => $data) {
-            foreach ($data as $message) {
-                $message['type'] = $type;
-                switch ($type) {
-                    case 'log':
+            switch ($type) {
+                case 'log':
+                    foreach ($data as $message) {
+                        $message['type'] = $type;
                         if (!is_scalar($message['data'])) {
                             $message['data'] = json_encode($message['data'], JSON_PRETTY_PRINT) ?: '';
                         } else {
                             $message['data'] = strval($message['data']);
                         }
-                        break;
-                    case 'memory':
+                        $this->output['messages'][$type][] = $message;
+                    }
+                    $this->output['messages']['all'] = array_merge($this->output['messages']['all'], $this->output['messages'][$type]);
+                    break;
+                case 'memory':
+                    foreach ($data as $message) {
+                        $message['type'] = $type;
                         $message['data'] = self::getReadableFileSize($message['data']);
-                        break;
-                    case 'speed':
+                        $this->output['messages'][$type][] = $message;
+                    }
+                    $this->output['messages']['all'] = array_merge($this->output['messages']['all'], $this->output['messages'][$type]);
+                    break;
+                case 'speed':
+                    foreach ($data as $message) {
+                        $message['type'] = $type;
                         $message['data'] = self::getReadableTime(($message['data'] - $this->startTime) * 1000);
-                        break;
-                    case 'benchmark':
+                        $this->output['messages'][$type][] = $message;
+                    }
+                    $this->output['messages']['all'] = array_merge($this->output['messages']['all'], $this->output['messages'][$type]);
+                    break;
+                case 'benchmark':
+                    foreach ($data as $message) {
+                        $message['type'] = $type;
                         $message['data'] = self::getReadableTime($message['end_time'] - $message['start_time']);
-                        break;
-                    case 'error':
-                        break;
-                    default:
-                        continue(2);
+                        $this->output['messages'][$type][] = $message;
+                    }
+                    $this->output['messages']['all'] = array_merge($this->output['messages']['all'], $this->output['messages'][$type]);
+                    break;
+                case 'error':
+                    foreach ($data as $message) {
+                        $message['type'] = $type;
+                        $this->output['messages'][$type][] = $message;
+                    }
+                    $this->output['messages']['all'] = array_merge($this->output['messages']['all'], $this->output['messages'][$type]);
+                    break;
                 }
-
-                $this->output['messages'][$type][] =
-                $this->output['messages']['all'][] = $message;
-            }
         }
 
     }
