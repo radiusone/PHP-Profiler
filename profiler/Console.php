@@ -2,11 +2,20 @@
 /**
  * Port of PHP Quick Profiler by Ryan Campbell
  * Original URL: http://particletree.com/features/php-quick-profiler
+ *
+ * @phpstan-type Logs array{
+ *     log: array{messages: array{data: mixed}},
+ *     memory: array{messages: array{data: mixed, name: string, dataType: string}},
+ *     error: array{messages: array{data: string, file: string, line: int}},
+ *     speed: array{messages: array{data: float, name: string}},
+ *     benchmark: array{messages: array<string, array{start_time: float, end_time: float|null, name: string}>},
+ *     queries: array{'messages': array<string, array{sql: string, start_time: float, end_time: float, explain: array{'possible_keys'|'key'|'type'|'rows': string}}>}
+ * }
  */
 class Profiler_Console {
     /**
      * Holds the logs used when the console is displayed.
-     * @var array<string,array<string,mixed>>
+     * @var Logs
      */
     private static array $logs = [
         'log' => ['messages' => []],
@@ -19,6 +28,7 @@ class Profiler_Console {
 
     /**
      * Logs a variable to the console
+     *
      * @param mixed $data The data to log to the console
      * @return void
      */
@@ -28,6 +38,7 @@ class Profiler_Console {
 
     /**
      * Logs the memory usage of the provided variable, or entire script
+     *
      * @param object|null $object Optional variable to log the memory usage of
      * @param string $name Optional name used to group variables and scripts together
      * @return void
@@ -143,7 +154,6 @@ class Profiler_Console {
      *
      * @param string $name The name of the benchmark
      * @return void
-     *
      */
     public static function logBenchmark(string $name): void {
         $key = 'benchmark_ ' . $name;
@@ -167,7 +177,7 @@ class Profiler_Console {
 
     /**
      * Returns all log data
-     * @return array<string,array<string,mixed>>
+     * @return Logs
      */
     public static function getLogs(): array {
         return self::$logs;

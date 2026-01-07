@@ -2,11 +2,39 @@
 /**
  * Port of PHP Quick Profiler by Ryan Campbell
  * Original URL: http://particletree.com/features/php-quick-profiler
+ *
+ * @phpstan-import-type Logs from Profiler_Console
  */
 class Profiler_Profiler {
     /**
      * Holds log data collected by Profiler_Console
-     * @var array{'logs'|'files'|'fileTotals'|'queries'|'queryTotals'|'memoryTotals'|'speedTotals': array<string,mixed>}
+     *
+     * @var array{
+     *     messages: array{
+     *          log: array,
+     *          memory: array,
+     *          error: array,
+     *          speed: array,
+     *          benchmark: array,
+     *          all: array
+     *     },
+     *     files: array{name: string, bytes: int, size: string},
+     *     fileTotals: array{size: string, largest: string},
+     *     queries: array<string,mixed>,
+     *     queryTotals: array{
+     *          total: int,
+     *          duplicates: int,
+     *          time: string,
+     *          'select'|'insert'|'update'|'delete': array{
+     *              total: int,
+     *              time: string,
+     *              percentage: string,
+     *              time_percentage: string
+     *          }
+     *     },
+     *     memoryTotals: array{used: string, total: string},
+     *     speedTotals: array{total: string, allowed: string}
+     * }
      */
     public array $output = [];
 
@@ -14,8 +42,8 @@ class Profiler_Profiler {
      * Sets the configuration options for this object and sets the start time.
      *
      * @param array{
-     *     query_explain_callback: callable(string):array{'possible_keys'|'key'|'type'|'rows': string}|null,
-     *     query_profiler_callback: callable(string):array{'possible_keys'|'key'|'type'|'rows': string}|null,
+     *     query_explain_callback: callable(string):(array{'possible_keys'|'key'|'type'|'rows': string}|null),
+     *     query_profiler_callback: callable(string):(array{status: string, duration: float}[]|null),
      * } $config List of configuration options
      * @param int|float|null $startTime Time to use as the start time of the profiler
      */
@@ -30,7 +58,7 @@ class Profiler_Profiler {
     /**
      * Shortcut for setting the callback used to explain queries.
      *
-     * @param callable $callback
+     * @param callable(string):(array{'possible_keys'|'key'|'type'|'rows': string}|null) $callback
      */
     public function setQueryExplainCallback(callable $callback): void
     {
@@ -41,7 +69,7 @@ class Profiler_Profiler {
      * Shortcut for setting the callback used to interact with the MySQL
      * query profiler.
      *
-     * @param callable $callback
+     * @param callable(string):(array{status: string, duration: float}[]|null) $callback
      */
     public function setQueryProfilerCallback(callable $callback): void
     {
@@ -53,6 +81,7 @@ class Profiler_Profiler {
      */
     public function gatherConsoleData(): void
     {
+        /** @var Logs $logs */
         $logs = Profiler_Console::getLogs();
 
         foreach ($logs as $type => $data) {
