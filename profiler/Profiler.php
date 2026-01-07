@@ -10,30 +10,33 @@ class Profiler_Profiler {
      * Holds log data collected by Profiler_Console
      *
      * @var array{
-     *     messages: array{
-     *          log: array,
-     *          memory: array,
-     *          error: array,
-     *          speed: array,
-     *          benchmark: array,
-     *          all: array
+     *     messages?: array{
+     *         log: array{data: string, type: 'log', ...}[]|array{},
+     *         memory: array{data: string, dataType: string, name: string, type: 'memory', ...}[]|array{},
+     *         error: array{data: string, file: string, line: int, type: 'error', ...}[]|array{},
+     *         speed: array{data: string, name: string, type: 'speed', ...}[]|array{},
+     *         benchmark: array{data: string, name: string, type: 'benchmark', ...}[]|array{},
+     *         all: list<array{data: string, type: 'log'}|array{data: string, dataType: string, name: string, type: 'memory'}|array{data: string, file: string, line: int, type: 'error'}|array{data: string, name: string, type: 'speed'}|array{data: string, name: string, type: 'benchmark'}>|array{},
      *     },
-     *     files: array{name: string, bytes: int, size: string},
-     *     fileTotals: array{size: string, largest: string},
-     *     queries: array<string,mixed>,
-     *     queryTotals: array{
-     *          total: int,
-     *          duplicates: int,
-     *          time: string,
-     *          'select'|'insert'|'update'|'delete': array{
-     *              total: int,
-     *              time: string,
-     *              percentage: string,
-     *              time_percentage: string
-     *          }
+     *     files?: array{name: string, bytes: int, size: string}[],
+     *     fileTotals?: array{size: string, largest: string},
+     *     queries?: array{
+     *         sql: string,
+     *         time: string,
+     *         duplicate: bool,
+     *         explain: array{possible_keys: string, key: string, type: string, rows: string}|null,
+     *         profile: array{Status: string, Duration: string}[]|null
+     *      }[],
+     *     queryTotals?: array{
+     *         duplicates: int,
+     *         time: string,
+     *         select: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
+     *         insert: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
+     *         update: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
+     *         delete: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
      *     },
-     *     memoryTotals: array{used: string, total: string},
-     *     speedTotals: array{total: string, allowed: string}
+     *     memoryTotals?: array{used: string, total: string},
+     *     speedTotals?: array{total: string, allowed: string}
      * }
      */
     public array $output = [];
@@ -42,8 +45,8 @@ class Profiler_Profiler {
      * Sets the configuration options for this object and sets the start time.
      *
      * @param array{
-     *     query_explain_callback: callable(string):(array{'possible_keys'|'key'|'type'|'rows': string}|null),
-     *     query_profiler_callback: callable(string):(array{status: string, duration: float}[]|null),
+     *     query_explain_callback?: callable(string):(array{possible_keys: string, key: string, type: string, rows: string}|null),
+     *     query_profiler_callback?: callable(string):(array{Status: string, Duration: float}[]|null),
      * } $config List of configuration options
      * @param int|float|null $startTime Time to use as the start time of the profiler
      */
@@ -58,7 +61,7 @@ class Profiler_Profiler {
     /**
      * Shortcut for setting the callback used to explain queries.
      *
-     * @param callable(string):(array{'possible_keys'|'key'|'type'|'rows': string}|null) $callback
+     * @param callable(string):(array{possible_keys: string, key: string, type: string, rows: string}|null) $callback
      */
     public function setQueryExplainCallback(callable $callback): void
     {
@@ -69,7 +72,7 @@ class Profiler_Profiler {
      * Shortcut for setting the callback used to interact with the MySQL
      * query profiler.
      *
-     * @param callable(string):(array{status: string, duration: float}[]|null) $callback
+     * @param callable(string):(array{Status: string, Duration: float}[]|null) $callback
      */
     public function setQueryProfilerCallback(callable $callback): void
     {
@@ -327,12 +330,12 @@ class Profiler_Profiler {
      * Used with a callback to allow integration into DAL's to explain an executed query.
      *
      * @param string $sql The query that is being explained
-     * @return array
+     * @return array{possible_keys: string, key: string, type: string, rows: string}|null
      */
-    protected function attemptToExplainQuery(string $sql): array
+    protected function attemptToExplainQuery(string $sql): ?array
     {
         if (empty($this->config['query_explain_callback'])) {
-            return [];
+            return null;
         }
         $sql = 'EXPLAIN ' . $sql;
 
@@ -343,12 +346,12 @@ class Profiler_Profiler {
      * Used with a callback to allow integration into DAL's to profiler an execute query.
      *
      * @param string $sql The query being profiled
-     * @return array
+     * @return array{Status: string, Duration: float}[]|null
      */
-    protected function attemptToProfileQuery(string $sql): array
+    protected function attemptToProfileQuery(string $sql): ?array
     {
         if (empty($this->config['query_profiler_callback'])) {
-            return [];
+            return null;
         }
 
         return call_user_func($this->config['query_profiler_callback'], $sql);

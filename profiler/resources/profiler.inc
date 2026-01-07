@@ -4,26 +4,29 @@
  *
  * @var array{
  *     messages: array{
- *          log: array,
- *          memory: array,
- *          error: array,
- *          speed: array,
- *          benchmark: array,
- *          all: array
+ *         log: list<array{data: string, type: 'log'}>|array{},
+ *         memory: list<array{data: string, dataType: string, name: string, type: 'memory'}>|array{},
+ *         error: list<array{data: string, file: string, line: int, type: 'error'}>|array{},
+ *         speed: list<array{data: string, name: string, type: 'speed'}>|array{},
+ *         benchmark: list<array{data: string, name: string, type: 'benchmark'}>|array{},
+ *         all: list<array{data: string, type: 'log'}|array{data: string, dataType: string, name: string, type: 'memory'}|array{data: string, file: string, line: int, type: 'error'}|array{data: string, name: string, type: 'speed'}|array{data: string, name: string, type: 'benchmark'}>|array{},
  *     },
- *     files: array{name: string, bytes: int, size: string},
+ *     files: array{name: string, bytes: int, size: string}[],
  *     fileTotals: array{size: string, largest: string},
- *     queries: array<string,mixed>,
+ *     queries: array{
+ *         sql: string,
+ *         time: string,
+ *         duplicate: bool,
+ *         explain: array{possible_keys: string, key: string, type: string, rows: string}|null,
+ *         profile: array{Status: string, Duration: string}[]|null
+ *      }[],
  *     queryTotals: array{
- *          total: int,
- *          duplicates: int,
- *          time: string,
- *          'select'|'insert'|'update'|'delete': array{
- *              total: int,
- *              time: string,
- *              percentage: string,
- *              time_percentage: string
- *          }
+ *         duplicates: int,
+ *         time: string,
+ *         select: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
+ *         insert: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
+ *         update: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
+ *         delete: array{total: int, time: string, percentage: float, time_percentage: float}|array{},
  *     },
  *     memoryTotals: array{used: string, total: string},
  *     speedTotals: array{total: string, allowed: string}

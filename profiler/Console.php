@@ -4,12 +4,12 @@
  * Original URL: http://particletree.com/features/php-quick-profiler
  *
  * @phpstan-type Logs array{
- *     log: array{data: mixed}[],
- *     memory: array{data: int, name: string, dataType: string}[],
- *     error: array{data: string, file: string, line: int}[],
- *     speed: array{data: float, name: string}[],
- *     benchmark: array<string, array{start_time: float, end_time: float|null, name: string}>,
- *     queries: array<string, array{sql: string, start_time: float, end_time: float|null, explain: array{possible_keys: string, key: string, type: string, rows: string}|null}[]>
+ *     log: array{data: mixed}[]|array{},
+ *     memory: array{data: int, name: string, dataType: string}[]|array{},
+ *     error: array{data: string, file: string, line: int}[]|array{},
+ *     speed: array{data: float, name: string}[]|array{},
+ *     benchmark: array<string, array{start_time: float, end_time: float|null, name: string}>|array{},
+ *     queries: array<string, array{sql: string, start_time: float, end_time: float|null, explain: array{possible_keys: string, key: string, type: string, rows: string}|null}[]>|array{},
  * }
  */
 class Profiler_Console {
