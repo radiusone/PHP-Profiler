@@ -60,14 +60,13 @@ class Profiler_Console {
      * Logs an exception or error
      *
      * @param Exception $exception
-     * @param string $message
+     * @param string|null $message
      * @return void
      */
-    public static function logError(Exception $exception, string $message): void
+    public static function logError(Exception $exception, ?string $message = null): void
     {
         $log_item = [
-            'data' => $message,
-            'type' => 'error',
+            'data' => $message ?? $exception->getMessage(),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
         ];
@@ -170,7 +169,7 @@ class Profiler_Console {
 
         self::$logs['benchmark']['messages'][$key] = [
             'start_time' => microtime(true),
-            'end_time' => false,
+            'end_time' => null,
             'name' => $name,
         ];
     }
