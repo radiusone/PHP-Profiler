@@ -675,11 +675,14 @@ document.addEventListener('DOMContentLoaded', function () {
         e.stopPropagation();
         const container = document.getElementById('profiler-container');
         if (!container.classList.toggle('closed')) {
-            const act = document.querySelector("#profiler-boxes .active");
+            // panel was closed, open it
+            const act = document.querySelector('#profiler-boxes .active');
             if (!act) {
                 document.querySelector('#profiler-metrics .tab.active')
                     .dispatchEvent(new MouseEvent('click'));
             }
+        } else {
+            document.querySelectorAll(".profiler-box").forEach(el => el.classList.remove('active'));
         }
     });
     document.querySelector('#profiler-footer a[data-toggle=height]')?.addEventListener('click', function (e) {
@@ -692,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function () {
         el.addEventListener('click', function () {
             const target = this;
             document.querySelectorAll('#profiler-boxes > div')
-                .forEach(el => el.style.display = el.id === `profiler-${target.id}` ? 'flex' : 'none');
+                .forEach(el => el.classList.toggle('active', el.id === `profiler-${target.id}`));
             document.querySelectorAll('#profiler-metrics .tab').forEach(el => el.classList.remove('active'))
             target.classList.add('active');
             document.getElementById('profiler-container').classList.remove('closed');
