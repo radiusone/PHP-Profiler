@@ -233,10 +233,15 @@ class Profiler {
             }
         }
 
-        $t = array_sum(array_column($queries, 'time'));
+        $times = array_column($queries, 'time');
+        // times are like "23.45 ms"
+        $times = array_map(fn ($v) => explode(' ', $v)[0], $times);
+        $t = array_sum($times);
         foreach ($queryTypes as $type) {
             $tq = array_filter($queries, fn ($v) => str_starts_with(strtolower($v['sql']), $type));
-            $tq_time = array_sum(array_column($tq, 'time'));
+            $tq_times = array_column($tq, 'time');
+            $tq_times = array_map(fn ($v) => explode(' ', $v)[0], $tq_times);
+            $tq_time = array_sum($tq_times);
             $queryTotals[$type] = [
                 'total' => count($tq),
                 'time' => self::getReadableTime($tq_time),
