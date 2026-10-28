@@ -287,18 +287,39 @@
         }
     }
 
-    &:not(.closed) #profiler-boxes .profiler-box.active {
+    &:not(.closed, .hidden) #profiler-boxes .profiler-box.active {
         display: flex;
     }
 
     &.closed {
         #profiler-footer {
             border-top: 1px dotted #444444;
+            a[data-toggle=height] {
+                display: none;
+            }
         }
 
         #profiler-metrics .tab {
             max-height: fit-content;
             font-size: 75%;
+        }
+    }
+
+    &.hidden {
+        #profiler {
+            border-width: 1px;
+            padding-left: calc(1rem - 1px);
+            padding-right: calc(1rem - 1px);
+            #profiler-metrics {
+                display: none;
+            }
+            #profiler-footer {
+                border-top: none;
+                a[data-toggle=details], a[data-toggle=height] {
+                    display: none;
+                }
+
+            }
         }
     }
 }
@@ -639,8 +660,15 @@
                 <b>PHP</b>Profiler
             </div>
             <div>
-                <a data-toggle="details"><?= __('Details') ?></a>
-                <a data-toggle="height"><?= __('Toggle Height') ?></a>
+                <a data-toggle="body" data-show-text="<?= __('Show') ?>" data-hide-text="<?= __('Hide') ?>">
+                    <?= __('Hide') ?>
+                </a>
+                <a data-toggle="details" data-show-logs-text="<?= __('Show Logs') ?>" data-hide-logs-text="<?= __('Hide Logs') ?>">
+                    <?= __('Show Logs') ?>
+                </a>
+                <a data-toggle="height" data-taller-text="<?= __('More Height') ?>" data-shorter-text="<?= __('Less Height') ?>">
+                    <?= __('More Height') ?>
+                </a>
             </div>
         </div>
     </div>
@@ -670,6 +698,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    document.querySelector('#profiler-footer a[data-toggle=body]')?.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const container = document.getElementById('profiler-container');
+        if (!container.classList.toggle('hidden')) {
+            this.textContent = this.dataset.hideText;
+        } else {
+            this.textContent = this.dataset.showText;
+        }
+    });
     document.querySelector('#profiler-footer a[data-toggle=details]')?.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -681,14 +719,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.querySelector('#profiler-metrics .tab.active')
                     .dispatchEvent(new MouseEvent('click'));
             }
+            this.textContent = this.dataset.hideLogsText;
         } else {
             document.querySelectorAll(".profiler-box").forEach(el => el.classList.remove('active'));
+            this.textContent = this.dataset.showLogsText;
         }
     });
     document.querySelector('#profiler-footer a[data-toggle=height]')?.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        document.querySelectorAll('.profiler-box').forEach(el => el.classList.toggle('tall'));
+        let result;
+        document.querySelectorAll('.profiler-box').forEach(el => result = el.classList.toggle('tall'));
+        if (result) {
+            this.textContent = this.dataset.shorterText;
+        } else {
+            this.textContent = this.dataset.tallerText;
+        }
     });
 
     document.querySelectorAll('#profiler-metrics .tab').forEach(function (el) {
