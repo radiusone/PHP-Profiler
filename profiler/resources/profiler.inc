@@ -682,6 +682,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     setTimeout(function () {
+        // functions toggle so remember to negate values here
+        toggleHidden(localStorage.getItem('hidden') !== '1');
+        toggleDetails(localStorage.getItem('closed') !== '1');
+        toggleHeight(localStorage.getItem('tall') !== '1');
+        let tab = localStorage.getItem('activeTab');
+        if (tab) {
+            document.querySelectorAll('#profiler-metrics .tab').forEach(function (el) {
+                el.classList.toggle('active', el.id === tab);
+            });
+            document.querySelectorAll('#profiler-boxes .profiler-box').forEach(function (el) {
+                el.classList.toggle('active', el.id === `profiler-${tab}`);
+            });
+        }
         container.style.display = 'flex';
     }, 10);
 
@@ -701,41 +714,70 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#profiler-footer a[data-toggle=body]')?.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        const container = document.getElementById('profiler-container');
-        if (!container.classList.toggle('hidden')) {
-            this.textContent = this.dataset.hideText;
-        } else {
-            this.textContent = this.dataset.showText;
-        }
+        toggleHidden(container.classList.contains('hidden'))
     });
+
     document.querySelector('#profiler-footer a[data-toggle=details]')?.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        const container = document.getElementById('profiler-container');
-        if (!container.classList.toggle('closed')) {
-            // panel was closed, open it
-            const act = document.querySelector('#profiler-boxes .active');
-            if (!act) {
-                document.querySelector('#profiler-metrics .tab.active')
-                    .dispatchEvent(new MouseEvent('click'));
-            }
-            this.textContent = this.dataset.hideLogsText;
-        } else {
-            document.querySelectorAll(".profiler-box").forEach(el => el.classList.remove('active'));
-            this.textContent = this.dataset.showLogsText;
-        }
+        toggleDetails(container.classList.contains('closed'));
     });
+
     document.querySelector('#profiler-footer a[data-toggle=height]')?.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        let result;
-        document.querySelectorAll('.profiler-box').forEach(el => result = el.classList.toggle('tall'));
-        if (result) {
-            this.textContent = this.dataset.shorterText;
-        } else {
-            this.textContent = this.dataset.tallerText;
-        }
+        toggleHeight(document.querySelectorAll('.profiler-box.tall').length > 0)
     });
+
+    function toggleHidden(hidden) {
+        const link = document.querySelector('#profiler-footer a[data-toggle=body]');
+        if (hidden) {
+            container.classList.remove('hidden');
+            link.textContent = link.dataset.hideText;
+            localStorage.setItem('hidden', '0');
+        } else {
+            container.classList.add('hidden');
+            link.textContent = link.dataset.showText;
+            localStorage.setItem('hidden', '1');
+        }
+    }
+
+    function toggleDetails(closed) {
+        const link = document.querySelector('#profiler-footer a[data-toggle=details]');
+        if (closed) {
+            container.classList.remove('closed');
+            // panel was closed, open it
+             if (!document.querySelector('#profiler-boxes .active')) {
+                 const activeTab = localStorage.getItem('activeTab');
+                 if (activeTab) {
+                     document.getElementById(activeTab).classList.add('active');
+                 } else {
+                     document.querySelector('#profiler-metrics .tab.active')
+                         .dispatchEvent(new MouseEvent('click'));
+                 }
+            }
+            link.textContent = link.dataset.hideLogsText;
+            localStorage.setItem('closed', '0');
+        } else {
+            container.classList.add('closed');
+            document.querySelectorAll(".profiler-box").forEach(el => el.classList.remove('active'));
+            link.textContent = link.dataset.showLogsText;
+            localStorage.setItem('closed', '1');
+        }
+    }
+
+    function toggleHeight(tall) {
+        const link = document.querySelector('#profiler-footer a[data-toggle=height]');
+        if (tall) {
+            document.querySelectorAll('.profiler-box').forEach(el => el.classList.remove('tall'));
+            link.textContent = link.dataset.tallerText;
+            localStorage.setItem('tall', '0');
+        } else {
+            document.querySelectorAll('.profiler-box').forEach(el => el.classList.add('tall'));
+            link.textContent = link.dataset.shorterText;
+            localStorage.setItem('tall', '1');
+        }
+    }
 
     document.querySelectorAll('#profiler-metrics .tab').forEach(function (el) {
         el.addEventListener('click', function () {
@@ -745,6 +787,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('#profiler-metrics .tab').forEach(el => el.classList.remove('active'))
             target.classList.add('active');
             document.getElementById('profiler-container').classList.remove('closed');
+            localStorage.setItem('activeTab', target.id);
         });
     });
 
